@@ -11,3 +11,4 @@ WHERE p.user_id IN (
 ORDER BY p.date;
 
 SELECT * FROM user;
+SELECT name FROM user WHERE id = 1

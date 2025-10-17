@@ -124,7 +124,7 @@ func (p *printer) print(args ...any) {
 				}
 				p.print(token.Rparen)
 			} else {
-				p.print(arg.kind, newline)
+				p.print(newline)
 			}
 		case *Clause:
 			indented := false
@@ -160,7 +160,7 @@ func (p *printer) print(args ...any) {
 			case token.Assign:
 				p.removeLast(space)
 				p.print(space)
-			case token.Comma, token.Period:
+			case token.Comma, token.Period, token.Semicolon:
 				p.removeLast(space)
 			}
 

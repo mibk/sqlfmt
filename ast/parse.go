@@ -84,7 +84,12 @@ var _ = log.Println
 func (p *parser) parseScript() *Script {
 	s := new(Script)
 	for p.tok.Type != token.EOF {
-		offset := p.got(token.Whitespace)
+		var offset bool
+		if p.tok.Type == token.Whitespace {
+			_, ws, _ := strings.Cut(p.tok.Text, "\n")
+			offset = strings.Contains(ws, "\n")
+			p.next()
+		}
 		stmt := p.parseStmt(token.Semicolon)
 		stmt.offset = offset
 		if len(stmt.nodes) > 0 {
@@ -106,6 +111,11 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 
 		switch p.tok.Type {
 		case token.EOF, end:
+			if len(stmt.nodes) > 0 {
+			}
+			if p.tok.Type == token.Semicolon {
+				stmt.nodes = append(stmt.nodes, p.tok)
+			}
 			p.next()
 			return stmt
 		case token.Whitespace:
@@ -124,7 +134,13 @@ func (p *parser) parseClause() *Clause {
 	c := new(Clause)
 	for {
 		switch p.tok.Type {
-		case token.EOF, token.Rparen, token.Semicolon:
+		case token.EOF:
+			// Ugly hack so I can sleep.
+			if ws, ok := c.nodes[len(c.nodes)-1].(token.Token); ok && ws.Type == token.Whitespace {
+				c.nodes = c.nodes[:len(c.nodes)-1]
+			}
+			fallthrough
+		case token.Rparen, token.Semicolon:
 			return c
 		case token.Lparen:
 			p.next()
