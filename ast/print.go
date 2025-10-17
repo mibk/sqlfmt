@@ -155,6 +155,8 @@ func (p *printer) print(args ...any) {
 			}
 
 			switch arg.Type {
+			case token.Keyword:
+				arg.Text = strings.ToUpper(arg.Text)
 			case token.Assign:
 				p.removeLast(space)
 				p.print(space)

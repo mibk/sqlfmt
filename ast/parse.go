@@ -130,10 +130,12 @@ func (p *parser) parseClause() *Clause {
 			p.next()
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
-		case token.Ident:
-			if len(c.nodes) > 0 && isKeyword(p.tok.Text) {
+		case token.Keyword:
+			if len(c.nodes) > 0 && startsNewClause(p.tok.Text) {
 				return c
 			}
+			fallthrough
+		case token.Ident:
 			fallthrough
 		default:
 			c.nodes = append(c.nodes, p.tok)
@@ -142,7 +144,7 @@ func (p *parser) parseClause() *Clause {
 	}
 }
 
-func isKeyword(s string) bool {
+func startsNewClause(s string) bool {
 	switch strings.ToUpper(s) {
 	case "SELECT", "FROM", "JOIN", "WHERE", "ORDER":
 		return true

@@ -2,7 +2,16 @@ package token
 
 import (
 	"fmt"
+	"strings"
 )
+
+var isKeyword = make(map[string]bool)
+
+func init() {
+	for _, kw := range strings.Fields(mariadbKeywords) {
+		isKeyword[kw] = true
+	}
+}
 
 type Token struct {
 	Type Type
@@ -30,6 +39,7 @@ const (
 	Whitespace
 	Comment
 
+	Keyword
 	Ident
 	String
 

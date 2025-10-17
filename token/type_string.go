@@ -12,25 +12,26 @@ func _() {
 	_ = x[EOF-1]
 	_ = x[Whitespace-2]
 	_ = x[Comment-3]
-	_ = x[Ident-4]
-	_ = x[String-5]
-	_ = x[symbolStart-6]
-	_ = x[Lparen-7]
-	_ = x[Rparen-8]
-	_ = x[Period-9]
-	_ = x[Add-10]
-	_ = x[Sub-11]
-	_ = x[Mul-12]
-	_ = x[Quo-13]
-	_ = x[Assign-14]
-	_ = x[Comma-15]
-	_ = x[Semicolon-16]
-	_ = x[symbolEnd-17]
+	_ = x[Keyword-4]
+	_ = x[Ident-5]
+	_ = x[String-6]
+	_ = x[symbolStart-7]
+	_ = x[Lparen-8]
+	_ = x[Rparen-9]
+	_ = x[Period-10]
+	_ = x[Add-11]
+	_ = x[Sub-12]
+	_ = x[Mul-13]
+	_ = x[Quo-14]
+	_ = x[Assign-15]
+	_ = x[Comma-16]
+	_ = x[Semicolon-17]
+	_ = x[symbolEnd-18]
 }
 
-const _Type_name = "IllegalEOFWhitespaceCommentIdentStringsymbolStart().+-*/=,;symbolEnd"
+const _Type_name = "IllegalEOFWhitespaceCommentKeywordIdentStringsymbolStart().+-*/=,;symbolEnd"
 
-var _Type_index = [...]uint8{0, 7, 10, 20, 27, 32, 38, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 68}
+var _Type_index = [...]uint8{0, 7, 10, 20, 27, 34, 39, 45, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 75}
 
 func (i Type) String() string {
 	idx := int(i) - 0

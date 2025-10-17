@@ -145,7 +145,11 @@ func (s *Scanner) scanAny() (tok Token) {
 	default:
 		s.unread()
 		if id := s.scanIdent(); id != "" {
-			return Token{Type: Ident, Text: id}
+			t := Token{Type: Ident, Text: id}
+			if isKeyword[strings.ToUpper(id)] {
+				t.Type = Keyword
+			}
+			return t
 		}
 		s.read()
 		return Token{Type: Illegal, Text: string(r)}
