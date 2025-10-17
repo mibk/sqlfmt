@@ -1,5 +1,5 @@
 SELECT
-p . id , DATE_FORMAT ( p.date , '%Y-%m-%d %H:%i:%s' ) AS datestr, p.date,
+p . id , DATE_FORMAT ( p.date ,'%Y-%m-%d %H:%i:%s' ) AS datestr, p.date,
 	b.name AS title
 FROM purchase p
 JOIN building b ON p.station_id=b.id

@@ -166,7 +166,7 @@ func (p *printer) print(args ...any) {
 			p.collect(arg)
 
 			switch arg.Type {
-			case token.Assign:
+			case token.Comma, token.Assign:
 				p.print(space)
 			case token.Period:
 				p.print(del)
