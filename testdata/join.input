@@ -1,0 +1,5 @@
+select *
+from book b
+join author a on b.author_id = a.id
+left join publisher p on b.publisher_id = p .id
+

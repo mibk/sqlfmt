@@ -22,10 +22,9 @@ func (e *SyntaxError) Error() string {
 type parser struct {
 	scan *token.Scanner
 
-	err  error
-	tok  token.Token
-	prev token.Token
-	alt  *token.Token // on backup
+	err    error
+	tok    token.Token
+	peeked []token.Token
 }
 
 func ParseScript(r io.Reader) (*Script, error) {
@@ -42,11 +41,11 @@ func (p *parser) next() {
 	if p.tok.Type == token.EOF {
 		return
 	}
-	if p.alt != nil {
-		p.tok, p.alt = *p.alt, nil
-		return
+	if len(p.peeked) > 0 {
+		p.tok, p.peeked = p.peeked[0], p.peeked[1:]
+	} else {
+		p.tok = p.scan.Next()
 	}
-	p.tok = p.scan.Next()
 	if p.tok.Type == token.EOF && p.err == nil {
 		err := p.scan.Err()
 		if se, ok := err.(*token.ScanError); ok {
@@ -62,12 +61,14 @@ func (p *parser) next() {
 	}
 }
 
-func (p *parser) got(typ token.Type) bool {
-	if p.tok.Type == typ {
-		p.next()
-		return true
+func (p *parser) peek() token.Token {
+	for {
+		tok := p.scan.Next()
+		p.peeked = append(p.peeked, tok)
+		if tok.Type != token.Whitespace {
+			return tok
+		}
 	}
-	return false
 }
 
 func (p *parser) errorf(format string, args ...interface{}) {
@@ -147,8 +148,21 @@ func (p *parser) parseClause() *Clause {
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
 		case token.Keyword:
-			if len(c.nodes) > 0 && startsNewClause(p.tok.Text) {
-				return c
+			if len(c.nodes) > 0 {
+				kword := p.tok.Text
+				switch strings.ToUpper(kword) {
+				case "LEFT", "RIGHT":
+					next := p.peek()
+					kword = next.Text
+					if next.Type != token.Keyword {
+						break
+					}
+					fallthrough
+				default:
+					if startsNewClause(kword) {
+						return c
+					}
+				}
 			}
 			fallthrough
 		case token.Ident:
