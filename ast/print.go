@@ -157,7 +157,7 @@ func (p *printer) print(args ...any) {
 			switch arg.Type {
 			case token.Keyword:
 				arg.Text = strings.ToUpper(arg.Text)
-			case token.Assign:
+			case token.Eq:
 				p.removeLast(space)
 				p.print(space)
 			case token.Comma, token.Period, token.Semicolon:
@@ -168,7 +168,7 @@ func (p *printer) print(args ...any) {
 			p.collect(arg)
 
 			switch arg.Type {
-			case token.Comma, token.Assign:
+			case token.Comma, token.Eq:
 				p.print(space)
 			case token.Period:
 				p.print(del)

@@ -51,7 +51,14 @@ const (
 	Sub       // -
 	Mul       // *
 	Quo       // /
-	Assign    // =
+	Eq        // =
+	Neq       // !=
+	Lt        // <
+	Gt        // >
+	Leq       // <=
+	Geq       // >=
+	NullEqual // <=>
+	Not       // !
 	Comma     // ,
 	Semicolon // ;
 	symbolEnd

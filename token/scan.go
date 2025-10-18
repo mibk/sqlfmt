@@ -128,7 +128,36 @@ func (s *Scanner) scanAny() (tok Token) {
 	case ')':
 		return Token{Type: Rparen}
 	case '=':
-		return Token{Type: Assign}
+		return Token{Type: Eq}
+	case '<':
+		switch r2 := s.peek(); r2 {
+		case '>':
+			s.read()
+			return Token{Type: Neq, Text: "<>"}
+		case '=':
+			s.read()
+			if s.peek() == '>' {
+				s.read()
+				return Token{Type: NullEqual}
+			}
+			return Token{Type: Leq}
+		default:
+			return Token{Type: Lt}
+		}
+	case '>':
+		switch r2 := s.peek(); r2 {
+		case '=':
+			s.read()
+			return Token{Type: Geq}
+		}
+		return Token{Type: Gt}
+	case '!':
+		switch r2 := s.peek(); r2 {
+		case '=':
+			s.read()
+			return Token{Type: Neq}
+		}
+		return Token{Type: Geq}
 	case '*':
 		return Token{Type: Ident, Text: "*"}
 	case '.':
