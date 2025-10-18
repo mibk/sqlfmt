@@ -149,7 +149,6 @@ func (p *printer) print(args ...any) {
 					}
 					p.print(newline, p.indent)
 				} else {
-					p.removeLast(space)
 					p.print(space)
 				}
 			case token.Keyword:
@@ -158,7 +157,6 @@ func (p *printer) print(args ...any) {
 			default:
 				p.print(arg.Text)
 			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
-				p.removeLast(space)
 				p.print(space, arg.Text, space)
 			case token.Comma:
 				p.removeLast(space)
@@ -194,6 +192,8 @@ func (p *printer) collect(tok any) {
 		if del != nil {
 			return
 		}
+		// Prevent double spaces.
+		p.removeLast(space)
 	}
 	p.tokens = append(p.tokens, tok)
 }
