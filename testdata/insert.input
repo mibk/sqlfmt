@@ -1,3 +1,6 @@
 insert into users values
 (1,'ken'),(2, 'dmr')
 on duplicate key update name=value(name);
+
+Insert into author ( name,default_publisher_id)
+values('Jo Nesbø', 42);
