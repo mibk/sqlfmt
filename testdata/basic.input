@@ -6,7 +6,7 @@ JOIN building b ON p.station_id=b.id
 WHERE p.user_id IN (
 select user_id
  From   registry
-Where id IN (  ?...  )
+Where id IN (  ?...  ) and registered <= curdate()
 )
    ORDER BY p.date  ;
 

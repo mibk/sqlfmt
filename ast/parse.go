@@ -162,7 +162,8 @@ func (p *parser) parseClause() *Clause {
 
 func startsNewClause(s string) bool {
 	switch strings.ToUpper(s) {
-	case "SELECT", "FROM", "JOIN", "WHERE", "ORDER":
+	case "SELECT", "FROM", "JOIN", "WHERE", "ORDER",
+		"UNION", "SET":
 		return true
 	default:
 		return false

@@ -1,0 +1,3 @@
+insert into users values
+(1,'ken'),(2, 'dmr')
+on duplicate key update name=value(name);

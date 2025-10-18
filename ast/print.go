@@ -31,18 +31,18 @@ func Fprint(w io.Writer, node any) error {
 		switch tok := tok.(type) {
 		default:
 			err = fmt.Errorf("unsupported type %T", tok)
-		case token.Token:
+		case string:
 			justIndented = false
-			if strings.Contains(tok.Text, "\n") {
+			if strings.Contains(tok, "\n") {
 				buf.Flush()
 				tw.Flush()
 			}
 
 			// Normalize line endings to LF.
-			tok.Text = strings.ReplaceAll(tok.Text, "\r", "")
+			tok = strings.ReplaceAll(tok, "\r", "")
 
 			buf.WriteByte(tabwriter.Escape)
-			_, err = buf.WriteString(tok.Text)
+			_, err = buf.WriteString(tok)
 			buf.WriteByte(tabwriter.Escape)
 		case indentation:
 			justIndented = true
@@ -141,7 +141,8 @@ func (p *printer) print(args ...any) {
 				p.print(p.indent)
 			}
 		case token.Token:
-			if arg.Type == token.Whitespace {
+			switch arg.Type {
+			case token.Whitespace:
 				if i := strings.LastIndexByte(arg.Text, '\n'); i >= 0 {
 					if strings.Contains(arg.Text[:i], "\n") {
 						p.print(newline)
@@ -151,36 +152,34 @@ func (p *printer) print(args ...any) {
 					p.removeLast(space)
 					p.print(space)
 				}
-				continue
-			}
-
-			switch arg.Type {
 			case token.Keyword:
 				arg.Text = strings.ToUpper(arg.Text)
-			case token.Eq:
+				fallthrough
+			default:
+				p.print(arg.Text)
+			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
 				p.removeLast(space)
-				p.print(space)
-			case token.Comma, token.Period, token.Semicolon:
+				p.print(space, arg.Text, space)
+			case token.Comma:
 				p.removeLast(space)
-			}
-
-			arg.Pos = token.Pos{}
-			p.collect(arg)
-
-			switch arg.Type {
-			case token.Comma, token.Eq:
-				p.print(space)
+				p.print(arg.Text, space)
+			case token.Semicolon:
+				p.removeLast(space)
+				p.print(arg.Text)
 			case token.Period:
-				p.print(del)
+				p.removeLast(space)
+				p.print(arg.Text, del)
 			}
 		case token.Type:
 			if arg == token.EOF {
 				break
 			}
-			p.collect(token.Token{Type: arg, Text: arg.String()})
+			p.collect(arg.String())
 		case indentation:
 			p.collect(arg)
 		case whitespace:
+			p.collect(arg)
+		case string:
 			p.collect(arg)
 		}
 	}

@@ -1,0 +1,7 @@
+SELECT 1, 2
+
+UNION ALL
+
+SELECT *
+FROM numbers
+WHERE x < 3

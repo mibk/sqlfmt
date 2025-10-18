@@ -1,0 +1,7 @@
+SELECT 1, 2
+
+UNION all
+
+select *
+	from numbers
+	where x<3
