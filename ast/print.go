@@ -109,19 +109,25 @@ func (p *printer) print(args ...any) {
 			}
 			parens := arg.kind == token.Lparen
 			if parens {
-				p.indent++
 				p.print(token.Lparen)
 			}
+			indented := false
 			for _, n := range arg.nodes {
+				if parens && !indented && isNewline(n) {
+					indented = true
+					p.indent++
+				}
 				p.print(n)
 			}
 			p.removeLast(space)
-			if parens {
+			if indented {
 				id := p.removeLast(p.indent)
 				p.indent--
 				if id != nil {
 					p.print(p.indent)
 				}
+			}
+			if parens {
 				p.print(token.Rparen)
 			} else {
 				p.print(newline)

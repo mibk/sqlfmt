@@ -1,0 +1,11 @@
+SELECT ( is_admin OR EXISTS(
+	select 1
+	from past_admins
+	where user_id = user.id ))
+FROM user;
+
+SELECT (( is_admin OR EXISTS(
+	select 1
+	from past_admins
+	where user_id = user.id )))
+FROM user
