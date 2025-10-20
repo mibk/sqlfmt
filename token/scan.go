@@ -171,6 +171,9 @@ func (s *Scanner) scanAny() (tok Token) {
 		return s.scanWhitespace()
 	case '\'':
 		return s.scanSingleQuoted()
+	case '$', '%', '?':
+		id := s.scanIdent()
+		return Token{Type: Ident, Text: string(r) + id}
 	default:
 		s.unread()
 		if id := s.scanIdent(); id != "" {

@@ -1,0 +1,3 @@
+INSERT INTO event ?values...;
+SELECT * WHERE id = $set;
+UPDATE user WHERE event > %where;
