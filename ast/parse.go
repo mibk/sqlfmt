@@ -168,6 +168,8 @@ func (p *parser) parseClause() *Clause {
 						return c
 					}
 				}
+			} else {
+				c.indentNextLine = true
 			}
 			fallthrough
 		case token.Ident:

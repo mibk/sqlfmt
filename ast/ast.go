@@ -13,5 +13,6 @@ type Stmt struct {
 }
 
 type Clause struct {
-	nodes []any
+	indentNextLine bool
+	nodes          []any
 }

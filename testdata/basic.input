@@ -12,3 +12,11 @@ Where id IN (  ?...  ) and registered <= curdate()
 
 SELECT * FROM user  ;
 select name from user where id=1
+
+select *
+from task
+where user_id in (
+	'Alice'  ,
+	'Bob'    ,
+	'Cecil'  )
+;

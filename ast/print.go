@@ -135,7 +135,7 @@ func (p *printer) print(args ...any) {
 		case *Clause:
 			indented := false
 			for _, n := range arg.nodes {
-				if !indented && isNewline(n) {
+				if arg.indentNextLine && !indented && isNewline(n) {
 					indented = true
 					p.indent++
 				}
