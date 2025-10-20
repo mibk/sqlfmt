@@ -34,6 +34,7 @@ type Scanner struct {
 
 	line, col   int
 	lastLineLen int
+	lastToken   Type
 }
 
 func NewScanner(r io.Reader) *Scanner {
@@ -51,6 +52,9 @@ func (s *Scanner) Next() (tok Token) {
 		tok.Text = typ.String()
 	}
 	tok.Pos = pos
+	if tok.Type != Whitespace {
+		s.lastToken = tok.Type
+	}
 	return tok
 }
 
@@ -185,7 +189,7 @@ func (s *Scanner) scanAny() (tok Token) {
 		s.unread()
 		if id := s.scanIdent(); id != "" {
 			t := Token{Type: Ident, Text: id}
-			if isKeyword[strings.ToUpper(id)] {
+			if s.lastToken != Period && isKeyword[strings.ToUpper(id)] {
 				t.Type = Keyword
 			}
 			return t

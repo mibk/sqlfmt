@@ -1,1 +1,1 @@
-select `all`, [select] as [from] from `table`;
+select `all`, [select] as [from] , r . read from `table`;

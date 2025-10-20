@@ -1,1 +1,1 @@
-SELECT `all`, [select] AS [from] FROM `table`;
+SELECT `all`, [select] AS [from], r.read FROM `table`;
