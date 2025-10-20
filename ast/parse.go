@@ -151,6 +151,11 @@ func (p *parser) parseClause() *Clause {
 			if len(c.nodes) > 0 {
 				kword := p.tok.Text
 				switch strings.ToUpper(kword) {
+				case "ON":
+					next := p.peek()
+					if strings.ToUpper(next.Text) == "DUPLICATE" {
+						return c
+					}
 				case "LEFT", "RIGHT":
 					next := p.peek()
 					kword = next.Text
@@ -177,7 +182,8 @@ func (p *parser) parseClause() *Clause {
 func startsNewClause(s string) bool {
 	switch strings.ToUpper(s) {
 	case "SELECT", "FROM", "JOIN", "WHERE", "HAVING", "GROUP", "ORDER", "UNION",
-		"VALUES", "SET":
+		"VALUES", "SET",
+		"DUPLICATE":
 		return true
 	default:
 		return false
