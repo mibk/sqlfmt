@@ -171,6 +171,13 @@ func (s *Scanner) scanAny() (tok Token) {
 		return s.scanWhitespace()
 	case '\'':
 		return s.scanSingleQuoted()
+	case '`':
+		// TODO: Implement escaping for this one.
+		id := s.scanIdentUntil(r)
+		return Token{Type: Ident, Text: string(r) + id}
+	case '[':
+		id := s.scanIdentUntil(']')
+		return Token{Type: Ident, Text: string(r) + id}
 	case '$', '%', '?':
 		id := s.scanIdent()
 		return Token{Type: Ident, Text: string(r) + id}
@@ -260,6 +267,21 @@ func (s *Scanner) scanSingleQuoted() Token {
 			return Token{Type: String, Text: "'" + b.String()}
 		case eof:
 			return s.errorf("string not terminated")
+		}
+	}
+}
+
+func (s *Scanner) scanIdentUntil(delim rune) string {
+	var b strings.Builder
+	for {
+		r := s.read()
+		b.WriteRune(r)
+		switch r {
+		case delim:
+			return b.String()
+		case eof:
+			s.errorf("ident not terminated")
+			return ""
 		}
 	}
 }

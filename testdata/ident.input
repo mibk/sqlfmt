@@ -1,0 +1,1 @@
+select `all`, [select] as [from] from `table`;
