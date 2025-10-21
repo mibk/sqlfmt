@@ -41,7 +41,7 @@ func testFmt(t *testing.T, filename string) {
 	t.Log(filename)
 	t.Log(goldenName)
 
-	got := fmtInput(t, input)
+	got := fmtInput(t, filename, input)
 
 	if *rewriteGolden {
 		os.WriteFile(goldenName, got, 0o644)
@@ -54,10 +54,10 @@ func testFmt(t *testing.T, filename string) {
 	}
 }
 
-func fmtInput(t *testing.T, src []byte) []byte {
+func fmtInput(t *testing.T, filename string, src []byte) []byte {
 	t.Helper()
 	buf := new(bytes.Buffer)
-	if err := formatCode("<test>", buf, bytes.NewReader(src)); err != nil {
+	if err := formatCode(filename, buf, bytes.NewReader(src)); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
 	return buf.Bytes()
