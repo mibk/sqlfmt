@@ -111,10 +111,14 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 		// log.Println(p.tok)
 
 		switch p.tok.Type {
-		case token.EOF, end:
-			if len(stmt.nodes) > 0 {
+		case token.EOF:
+			if p.tok.Type != end && end != token.Semicolon {
+				p.errorf("unexpected %v, expected %v", p.tok.Type, end)
 			}
-			if p.tok.Type == token.Semicolon {
+			p.next()
+			return stmt
+		case end:
+			if end != token.Rparen {
 				stmt.nodes = append(stmt.nodes, p.tok)
 			}
 			p.next()
