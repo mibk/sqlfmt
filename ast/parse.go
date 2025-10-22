@@ -107,6 +107,7 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	}
 	stmt := new(Stmt)
 	stmt.kind = kind
+	var lastIndent string
 	for {
 		// log.Println(p.tok)
 
@@ -125,18 +126,35 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 			return stmt
 		case token.Whitespace:
 			if strings.ContainsRune(p.tok.Text, '\n') {
+
+				if i := strings.LastIndexByte(p.tok.Text, '\n'); i >= 0 {
+					lastIndent = p.tok.Text[i+1:]
+				}
+
 				stmt.nodes = append(stmt.nodes, p.tok)
 			}
 			p.next()
 		default:
-			c := p.parseClause()
+			// Indentation should be one level +.
+			i := lastIndent + "\t"
+			c := p.parseClause(i)
 			stmt.nodes = append(stmt.nodes, c)
 		}
 	}
 }
 
-func (p *parser) parseClause() *Clause {
+func (p *parser) parseClause(lastIndent string) *Clause {
 	c := new(Clause)
+	for p.tok.Type == token.Comment {
+		c.precede = append(c.precede, p.tok)
+		p.next()
+		if p.tok.Type != token.Whitespace {
+			break
+		}
+		c.precede = append(c.precede, p.tok)
+		p.next()
+	}
+	var justDeindented bool
 	for {
 		switch p.tok.Type {
 		case token.EOF:
@@ -179,6 +197,23 @@ func (p *parser) parseClause() *Clause {
 		case token.Ident:
 			fallthrough
 		default:
+			switch p.tok.Type {
+			case token.Whitespace:
+				if i := strings.LastIndexByte(p.tok.Text, '\n'); i >= 0 {
+					indent := p.tok.Text[i+1:]
+					if strings.HasPrefix(lastIndent, indent) && len(indent) < len(lastIndent) {
+						justDeindented = true
+					}
+					lastIndent = indent
+				}
+			case token.Comment:
+				if justDeindented {
+					return c
+				}
+				fallthrough
+			default:
+				justDeindented = false
+			}
 			c.nodes = append(c.nodes, p.tok)
 			p.next()
 		}

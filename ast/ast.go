@@ -14,5 +14,6 @@ type Stmt struct {
 
 type Clause struct {
 	indentNextLine bool
+	precede        []token.Token
 	nodes          []any
 }

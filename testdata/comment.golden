@@ -1,0 +1,12 @@
+SELECT
+	a,
+	# This comment is inside the clause
+	b
+# But this comment belongs to the next one.
+FROM vals
+	# Belongs to FROM
+	# As this one does
+# Belongs to WHERE
+WHERE a != b
+# And this one belongs to ORDER
+ORDER BY a

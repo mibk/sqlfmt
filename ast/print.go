@@ -133,6 +133,9 @@ func (p *printer) print(args ...any) {
 				p.print(newline)
 			}
 		case *Clause:
+			for _, tok := range arg.precede {
+				p.print(tok)
+			}
 			indented := false
 			for _, n := range arg.nodes {
 				if arg.indentNextLine && !indented && isNewline(n) {
