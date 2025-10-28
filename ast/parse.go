@@ -128,6 +128,9 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 			}
 			p.next()
 			return stmt
+		case token.Rparen:
+			p.errorf("unexpected %v, expected %v", p.tok.Type, end)
+			return stmt
 		case token.Whitespace:
 			if strings.ContainsRune(p.tok.Text, '\n') {
 
