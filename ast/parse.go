@@ -187,7 +187,7 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 					if strings.ToUpper(next.Text) == "DUPLICATE" {
 						return c
 					}
-				case "LEFT", "RIGHT":
+				case "LEFT", "RIGHT", "INNER", "CROSS":
 					next := p.peek()
 					kword = next.Text
 					if next.Type != token.Keyword {
