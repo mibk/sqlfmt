@@ -28,6 +28,7 @@ type parser struct {
 }
 
 func ParseScript(r io.Reader) (*Script, error) {
+	clear(loopCnt)
 	p := &parser{scan: token.NewScanner(r)}
 	p.next() // init
 	s := p.parseScript()
@@ -63,6 +64,7 @@ func (p *parser) next() {
 
 func (p *parser) peek() token.Token {
 	for {
+		checkLoop("#peek")
 		tok := p.scan.Next()
 		p.peeked = append(p.peeked, tok)
 		if tok.Type != token.Whitespace {
@@ -85,6 +87,7 @@ var _ = log.Println
 func (p *parser) parseScript() *Script {
 	s := new(Script)
 	for p.tok.Type != token.EOF {
+		checkLoop("#script")
 		var offset bool
 		if p.tok.Type == token.Whitespace {
 			_, ws, _ := strings.Cut(p.tok.Text, "\n")
@@ -109,6 +112,7 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	stmt.kind = kind
 	var lastIndent string
 	for {
+		checkLoop("#stmt")
 		// log.Println(p.tok)
 
 		switch p.tok.Type {
@@ -146,6 +150,7 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 func (p *parser) parseClause(lastIndent string) *Clause {
 	c := new(Clause)
 	for p.tok.Type == token.Comment {
+		checkLoop("#comment")
 		c.precede = append(c.precede, p.tok)
 		p.next()
 		if p.tok.Type != token.Whitespace {
@@ -156,6 +161,7 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 	}
 	var justDeindented bool
 	for {
+		checkLoop("#clause")
 		switch p.tok.Type {
 		case token.EOF:
 			// Ugly hack so I can sleep.
@@ -228,5 +234,15 @@ func startsNewClause(s string) bool {
 		return true
 	default:
 		return false
+	}
+}
+
+var loopCnt = make(map[string]int)
+
+func checkLoop(name string) {
+	loopCnt[name]++
+	const limit = 5000
+	if loopCnt[name] > limit {
+		panic(fmt.Sprint("loop ", name, " is over ", limit, " iterations"))
 	}
 }
