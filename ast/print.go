@@ -116,6 +116,9 @@ func (p *printer) print(args ...any) {
 				if parens && !indented && isNewline(n) {
 					indented = true
 					p.indent++
+				} else if c, ok := n.(*Clause); ok && !indented {
+					// Looks like a hack to me.
+					c.indentNextLine = true
 				}
 				p.print(n)
 			}
@@ -145,9 +148,11 @@ func (p *printer) print(args ...any) {
 				p.print(n)
 			}
 			if indented {
-				p.removeLast(p.indent)
+				id := p.removeLast(p.indent)
 				p.indent--
-				p.print(p.indent)
+				if id != nil {
+					p.print(p.indent)
+				}
 			}
 		case token.Token:
 			switch arg.Type {

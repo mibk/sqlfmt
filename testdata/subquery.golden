@@ -9,3 +9,14 @@ SELECT ((is_admin OR EXISTS(
 	FROM past_admins
 	WHERE user_id = user.id)))
 FROM user
+
+SELECT
+	CONCAT(b.name,
+		b.publisher) info
+FROM
+	book b
+;
+
+SELECT CONCAT(b.name,
+	b.publisher) info
+FROM book b;
