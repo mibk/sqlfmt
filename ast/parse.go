@@ -30,6 +30,9 @@ type parser struct {
 	err    error
 	tok    token.Token
 	peeked []token.Token
+
+	lastIndent     string
+	justDeindented bool
 }
 
 func ParseScript(r io.Reader) (*Script, error) {
@@ -44,6 +47,19 @@ func ParseScript(r io.Reader) (*Script, error) {
 }
 
 func (p *parser) next() {
+	defer func() {
+		if p.tok.Type != token.Whitespace {
+			return
+		}
+		i := strings.LastIndexByte(p.tok.Text, '\n')
+		if i < 0 {
+			return
+		}
+		indent := p.tok.Text[i+1:]
+		p.justDeindented = strings.HasPrefix(p.lastIndent, indent) &&
+			len(indent) < len(p.lastIndent)
+		p.lastIndent = indent
+	}()
 	if p.tok.Type == token.EOF {
 		return
 	}
@@ -115,7 +131,6 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	}
 	stmt := new(Stmt)
 	stmt.kind = kind
-	var lastIndent string
 	for {
 		checkLoop("#stmt")
 		// log.Println(p.tok)
@@ -138,24 +153,17 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 			return stmt
 		case token.Whitespace:
 			if strings.ContainsRune(p.tok.Text, '\n') {
-
-				if i := strings.LastIndexByte(p.tok.Text, '\n'); i >= 0 {
-					lastIndent = p.tok.Text[i+1:]
-				}
-
 				stmt.nodes = append(stmt.nodes, p.tok)
 			}
 			p.next()
 		default:
-			// Indentation should be one level +.
-			i := lastIndent + "\t"
-			c := p.parseClause(i)
+			c := p.parseClause()
 			stmt.nodes = append(stmt.nodes, c)
 		}
 	}
 }
 
-func (p *parser) parseClause(lastIndent string) *Clause {
+func (p *parser) parseClause() *Clause {
 	c := new(Clause)
 	for p.tok.Type == token.Comment {
 		checkLoop("#comment")
@@ -167,12 +175,22 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 		c.precede = append(c.precede, p.tok)
 		p.next()
 	}
-	var justDeindented bool
+
+	// Indentation should be one level +.
+	p.lastIndent += "\t"
+
 	fnCallAsKword := true
 	for {
 		checkLoop("#clause")
 		switch p.tok.Type {
 		case token.EOF:
+			if len(c.nodes) == 0 {
+				// An even uglier hack so I can sleep.
+				if ws := c.precede[len(c.precede)-1]; ws.Type == token.Whitespace {
+					c.precede = c.precede[:len(c.precede)-1]
+				}
+				return c
+			}
 			// Ugly hack so I can sleep.
 			if ws, ok := c.nodes[len(c.nodes)-1].(token.Token); ok && ws.Type == token.Whitespace {
 				c.nodes = c.nodes[:len(c.nodes)-1]
@@ -216,24 +234,8 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 		default:
 			if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
-			}
-
-			switch p.tok.Type {
-			case token.Whitespace:
-				if i := strings.LastIndexByte(p.tok.Text, '\n'); i >= 0 {
-					indent := p.tok.Text[i+1:]
-					if strings.HasPrefix(lastIndent, indent) && len(indent) < len(lastIndent) {
-						justDeindented = true
-					}
-					lastIndent = indent
-				}
-			case token.Comment:
-				if justDeindented {
-					return c
-				}
-				fallthrough
-			default:
-				justDeindented = false
+			} else if p.tok.Type == token.Comment && p.justDeindented {
+				return c
 			}
 			c.nodes = append(c.nodes, p.tok)
 			p.next()
@@ -245,7 +247,8 @@ func startsNewClause(s string) bool {
 	switch strings.ToUpper(s) {
 	case "SELECT", "FROM", "JOIN", "WHERE", "HAVING", "GROUP", "ORDER", "LIMIT", "UNION",
 		"VALUES", "SET",
-		"DUPLICATE":
+		"DUPLICATE",
+		"ADD":
 		return true
 	default:
 		return false

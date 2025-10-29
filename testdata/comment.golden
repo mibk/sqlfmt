@@ -10,3 +10,11 @@ FROM vals
 WHERE a != b
 # And this one belongs to ORDER
 ORDER BY a
+
+UNION
+
+# This one belongs to SELECT
+SELECT 1;
+
+# Separate comments
+# At the end.
