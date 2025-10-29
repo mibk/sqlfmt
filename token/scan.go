@@ -135,6 +135,9 @@ func (s *Scanner) scanAny() (tok Token) {
 		return Token{Type: Eq}
 	case '<':
 		switch r2 := s.peek(); r2 {
+		case '<':
+			s.read()
+			return Token{Type: BitShl, Text: "<<"}
 		case '>':
 			s.read()
 			return Token{Type: Neq, Text: "<>"}
@@ -150,6 +153,9 @@ func (s *Scanner) scanAny() (tok Token) {
 		}
 	case '>':
 		switch r2 := s.peek(); r2 {
+		case '>':
+			s.read()
+			return Token{Type: BitShr, Text: ">>"}
 		case '=':
 			s.read()
 			return Token{Type: Geq}

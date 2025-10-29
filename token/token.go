@@ -51,6 +51,8 @@ const (
 	Sub       // -
 	Mul       // *
 	Quo       // /
+	BitShl    // <<
+	BitShr    // >>
 	Eq        // =
 	Neq       // !=
 	Lt        // <
