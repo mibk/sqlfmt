@@ -1,0 +1,3 @@
+SELECT *, a.*, SUM(b.price * (100 + b.vat))
+FROM a
+JOIN b;

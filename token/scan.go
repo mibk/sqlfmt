@@ -169,7 +169,7 @@ func (s *Scanner) scanAny() (tok Token) {
 		}
 		return Token{Type: Geq}
 	case '*':
-		return Token{Type: Ident, Text: "*"}
+		return Token{Type: Mul, Text: "*"}
 	case '.':
 		return Token{Type: Period}
 	case ',':
