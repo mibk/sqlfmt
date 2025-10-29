@@ -181,6 +181,8 @@ func (s *Scanner) scanAny() (tok Token) {
 		return s.scanWhitespace()
 	case '\'':
 		return s.scanSingleQuoted()
+	case '"':
+		return s.scanDoubleQuoted()
 	case '`':
 		// TODO: Implement escaping for this one.
 		id := s.scanIdentUntil(r)
@@ -275,6 +277,22 @@ func (s *Scanner) scanSingleQuoted() Token {
 			b.WriteRune(s.read())
 		case '\'':
 			return Token{Type: String, Text: "'" + b.String()}
+		case eof:
+			return s.errorf("string not terminated")
+		}
+	}
+}
+
+func (s *Scanner) scanDoubleQuoted() Token {
+	var b strings.Builder
+	for {
+		r := s.read()
+		b.WriteRune(r)
+		switch r {
+		case '\\':
+			b.WriteRune(s.read())
+		case '"':
+			return Token{Type: String, Text: `"` + b.String()}
 		case eof:
 			return s.errorf("string not terminated")
 		}
