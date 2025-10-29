@@ -1,1 +1,3 @@
 select `all`, [select] as [from] , r . read from `table`;
+
+select count ( * ) ;

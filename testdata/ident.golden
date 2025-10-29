@@ -1,1 +1,3 @@
 SELECT `all`, [select] AS [from], r.read FROM `table`;
+
+SELECT COUNT(*);

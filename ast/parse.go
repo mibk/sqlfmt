@@ -9,6 +9,11 @@ import (
 	"mibk.dev/sqlfmt/token"
 )
 
+const (
+	magicTokenOffset = 100
+	fnCallIdent      = token.Ident + magicTokenOffset
+)
+
 // SyntaxError records an error and the position it occurred on.
 type SyntaxError struct {
 	Line, Column int
@@ -163,6 +168,7 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 		p.next()
 	}
 	var justDeindented bool
+	fnCallAsKword := true
 	for {
 		checkLoop("#clause")
 		switch p.tok.Type {
@@ -179,6 +185,10 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
 		case token.Keyword:
+			switch strings.ToUpper(p.tok.Text) {
+			case "INTO":
+				fnCallAsKword = false
+			}
 			if len(c.nodes) > 0 {
 				kword := p.tok.Text
 				switch strings.ToUpper(kword) {
@@ -203,9 +213,11 @@ func (p *parser) parseClause(lastIndent string) *Clause {
 				c.indentNextLine = true
 			}
 			fallthrough
-		case token.Ident:
-			fallthrough
 		default:
+			if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
+				p.tok.Type = fnCallIdent
+			}
+
 			switch p.tok.Type {
 			case token.Whitespace:
 				if i := strings.LastIndexByte(p.tok.Text, '\n'); i >= 0 {

@@ -165,6 +165,9 @@ func (p *printer) print(args ...any) {
 				} else {
 					p.print(space)
 				}
+			case fnCallIdent:
+				id := strings.ToUpper(arg.Text)
+				p.print(id, del)
 			case token.Keyword:
 				arg.Text = strings.ToUpper(arg.Text)
 				fallthrough
