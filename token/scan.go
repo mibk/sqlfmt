@@ -131,6 +131,13 @@ func (s *Scanner) scanAny() (tok Token) {
 		return Token{Type: Lparen}
 	case ')':
 		return Token{Type: Rparen}
+	case ':':
+		switch r2 := s.peek(); r2 {
+		case '=':
+			s.read()
+			return Token{Type: Assign}
+		}
+		return Token{Type: Illegal, Text: ":"}
 	case '=':
 		return Token{Type: Eq}
 	case '<':

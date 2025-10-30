@@ -33,14 +33,15 @@ func _() {
 	_ = x[Geq-22]
 	_ = x[NullEqual-23]
 	_ = x[Not-24]
-	_ = x[Comma-25]
-	_ = x[Semicolon-26]
-	_ = x[symbolEnd-27]
+	_ = x[Assign-25]
+	_ = x[Comma-26]
+	_ = x[Semicolon-27]
+	_ = x[symbolEnd-28]
 }
 
-const _Type_name = "IllegalEOFWhitespaceCommentKeywordIdentStringsymbolStart().+-*/<<>>=!=<><=>=<=>!,;symbolEnd"
+const _Type_name = "IllegalEOFWhitespaceCommentKeywordIdentStringsymbolStart().+-*/<<>>=!=<><=>=<=>!:=,;symbolEnd"
 
-var _Type_index = [...]uint8{0, 7, 10, 20, 27, 34, 39, 45, 56, 57, 58, 59, 60, 61, 62, 63, 65, 67, 68, 70, 71, 72, 74, 76, 79, 80, 81, 82, 91}
+var _Type_index = [...]uint8{0, 7, 10, 20, 27, 34, 39, 45, 56, 57, 58, 59, 60, 61, 62, 63, 65, 67, 68, 70, 71, 72, 74, 76, 79, 80, 82, 83, 84, 93}
 
 func (i Type) String() string {
 	idx := int(i) - 0

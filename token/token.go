@@ -88,6 +88,7 @@ const (
 	Geq       // >=
 	NullEqual // <=>
 	Not       // !
+	Assign    // :=
 	Comma     // ,
 	Semicolon // ;
 	symbolEnd
