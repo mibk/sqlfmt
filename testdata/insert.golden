@@ -3,4 +3,4 @@ INSERT INTO users VALUES
 ON duplicate KEY UPDATE name = VALUE(name);
 
 INSERT INTO author (name, default_publisher_id)
-VALUES('Jo Nesbø', 42);
+VALUES ('Jo Nesbø', 42);

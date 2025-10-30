@@ -170,7 +170,7 @@ func (p *printer) print(args ...any) {
 				p.print(id, del)
 			case token.Keyword:
 				arg.Text = strings.ToUpper(arg.Text)
-				fallthrough
+				p.print(arg.Text, space)
 			default:
 				p.print(arg.Text)
 			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:

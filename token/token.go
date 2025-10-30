@@ -22,6 +22,10 @@ func init() {
 
 		var ok bool
 		kw := strings.TrimSpace(line)
+		if strings.HasSuffix(kw, "*") {
+			// This one is reserved, but not a keyword.
+			continue
+		}
 		if kw, ok = strings.CutSuffix(kw, "."); ok {
 			opensClause[kw] = true
 		}

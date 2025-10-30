@@ -1,0 +1,7 @@
+SELECT ROW_NUMBER() OVER (
+	PARTITION BY group_id
+	ORDER BY date_added
+), IF(u.name != '', CONCAT('@', u.name), '') name
+FROM user u
+JOIN GROUP g ON u.group_id = g.id
+WHERE MATCH(g.name) AGAINST(?)

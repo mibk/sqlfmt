@@ -84,6 +84,9 @@ func (p *parser) next() {
 }
 
 func (p *parser) peek() token.Token {
+	if len(p.peeked) > 0 {
+		return p.peeked[len(p.peeked)-1]
+	}
 	for {
 		checkLoop("#peek")
 		tok := p.scan.Next()
@@ -219,6 +222,7 @@ func (p *parser) parseClause() *Clause {
 					next := p.peek()
 					kword = next.Text
 					if next.Type != token.Keyword {
+						p.tok.Type = token.Ident
 						break
 					}
 					fallthrough

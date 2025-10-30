@@ -1,0 +1,7 @@
+select row_number () over(
+partition by group_id
+order by date_added
+), if (u .name!= '', concat ('@',u.name),'') name
+from user u
+join group g on u.group_id = g.id
+where match (g.name ) against ( ? )
