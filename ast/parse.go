@@ -209,6 +209,11 @@ func (p *parser) parseClause() *Clause {
 			switch strings.ToUpper(p.tok.Text) {
 			case "INTO":
 				fnCallAsKword = false
+			case "REPLACE":
+				if p.peek().Type == token.Lparen {
+					p.tok.Type = token.Ident
+					continue
+				}
 			}
 			if len(c.nodes) > 0 {
 				kword := p.tok.Text
