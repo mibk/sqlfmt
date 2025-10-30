@@ -1,14 +1,22 @@
 package token
 
 import (
+	_ "embed"
 	"fmt"
 	"strings"
 )
 
+//go:embed mariadb.list
+var mariadbReservedWords string
+
 var isKeyword = make(map[string]bool)
 
 func init() {
-	for _, kw := range strings.Fields(mariadbKeywords) {
+	for line := range strings.Lines(mariadbReservedWords) {
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		kw := strings.TrimSpace(line)
 		isKeyword[kw] = true
 	}
 }

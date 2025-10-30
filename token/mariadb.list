@@ -1,7 +1,4 @@
-package token
-
-// Source https://mariadb.com/docs/server/reference/sql-structure/sql-language-structure/reserved-words
-const mariadbKeywords = `
+# Source https://mariadb.com/docs/server/reference/sql-structure/sql-language-structure/reserved-words
 ACCESSIBLE
 ADD
 ALL
@@ -253,4 +250,3 @@ WRITE
 XOR
 YEAR_MONTH
 ZEROFILL
-`
