@@ -223,7 +223,7 @@ func (p *parser) parseClause() *Clause {
 					}
 					fallthrough
 				default:
-					if startsNewClause(kword) {
+					if token.OpensClause(kword) {
 						return c
 					}
 				}
@@ -240,18 +240,6 @@ func (p *parser) parseClause() *Clause {
 			c.nodes = append(c.nodes, p.tok)
 			p.next()
 		}
-	}
-}
-
-func startsNewClause(s string) bool {
-	switch strings.ToUpper(s) {
-	case "SELECT", "FROM", "JOIN", "WHERE", "HAVING", "GROUP", "ORDER", "LIMIT", "UNION",
-		"VALUES", "SET",
-		"DUPLICATE",
-		"ADD":
-		return true
-	default:
-		return false
 	}
 }
 

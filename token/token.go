@@ -9,16 +9,28 @@ import (
 //go:embed mariadb.list
 var mariadbReservedWords string
 
-var isKeyword = make(map[string]bool)
+var (
+	isKeyword   = make(map[string]bool)
+	opensClause = make(map[string]bool)
+)
 
 func init() {
 	for line := range strings.Lines(mariadbReservedWords) {
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
+
+		var ok bool
 		kw := strings.TrimSpace(line)
+		if kw, ok = strings.CutSuffix(kw, "."); ok {
+			opensClause[kw] = true
+		}
 		isKeyword[kw] = true
 	}
+}
+
+func OpensClause(s string) bool {
+	return opensClause[strings.ToUpper(s)]
 }
 
 type Token struct {
