@@ -19,7 +19,10 @@ func usage() {
 	os.Exit(2)
 }
 
-var inPlace = flag.Bool("w", false, "write to file")
+var (
+	inPlace      = flag.Bool("w", false, "write to file")
+	simplifyFlag = flag.Bool("s", false, "simplify code")
+)
 
 func main() {
 	log.SetPrefix("sqlfmt: ")
@@ -104,5 +107,5 @@ func formatCode(filename string, out io.Writer, in io.Reader) error {
 	} else if err != nil {
 		return err
 	}
-	return ast.Fprint(out, script)
+	return ast.Fprint(out, script, *simplifyFlag)
 }

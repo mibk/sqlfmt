@@ -15,6 +15,7 @@ import (
 var rewriteGolden = flag.Bool("f", false, "write golden files")
 
 func TestFmt(t *testing.T) {
+	*simplifyFlag = true
 	files, err := filepath.Glob("testdata/*.input")
 	if err != nil {
 		t.Fatal(err)
