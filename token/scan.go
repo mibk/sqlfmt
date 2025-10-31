@@ -176,7 +176,21 @@ func (s *Scanner) scanAny() (tok Token) {
 		}
 		return Token{Type: Geq}
 	case '*':
-		return Token{Type: Mul, Text: "*"}
+		return Token{Type: Mul}
+	case '+':
+		return Token{Type: Add}
+	case '-':
+		switch r2 := s.peek(); r2 {
+		case '-':
+			s.read()
+			if s.peek() == ' ' {
+				return s.scanLineComment("--")
+			}
+			return Token{Type: Illegal, Text: "--"}
+		default:
+			return Token{Type: Sub}
+		}
+		return Token{Type: Gt}
 	case '.':
 		return Token{Type: Period}
 	case ',':

@@ -11,10 +11,10 @@ WHERE a != b
 # And this one belongs to ORDER
 ORDER BY a
 
-UNION
+UNION -- or you can write comments like this
 
 # This one belongs to SELECT
-SELECT 1;
+SELECT 1 --a;
 
 # Separate comments
 # At the end.
