@@ -4,4 +4,12 @@ select count ( * ) ;
 
 replace into t1 values('a', 'b');
 
-select replace ('sqlfmt','fmt','format')
+select replace ('sqlfmt','fmt','format');
+
+ALTER TABLE t1
+ADD INDEX index_name (c1),
+CHANGE c2 c2 decimal(10,2) null after c1;
+
+CREATE PROCEDURE my_procedure();
+
+CALL my_procedure('value') ;

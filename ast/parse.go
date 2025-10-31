@@ -207,7 +207,7 @@ func (p *parser) parseClause() *Clause {
 			c.nodes = append(c.nodes, sub)
 		case token.Keyword:
 			switch strings.ToUpper(p.tok.Text) {
-			case "INTO":
+			case "INTO", "CREATE", "ADD", "CHANGE", "CALL":
 				fnCallAsKword = false
 			case "REPLACE":
 				if p.peek().Type == token.Lparen {
