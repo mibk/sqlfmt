@@ -1,2 +1,5 @@
 SELECT foo, bar
-FROM [table]
+FROM [table];
+
+ALTER TABLE t1
+ADD INDEX index_name (`column`);

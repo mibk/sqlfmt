@@ -1,2 +1,5 @@
 select [foo],`bar`
-from [table]
+from [table];
+
+alter table t1
+add index `index_name` (`column`);

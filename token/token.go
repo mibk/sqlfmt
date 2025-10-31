@@ -68,6 +68,7 @@ const (
 
 	Keyword
 	Ident
+	Quoted
 	String
 
 	symbolStart

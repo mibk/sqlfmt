@@ -173,7 +173,7 @@ func (p *printer) print(args ...any) {
 			case token.Keyword:
 				arg.Text = strings.ToUpper(arg.Text)
 				p.print(arg.Text, space)
-			case token.Ident:
+			case token.Quoted:
 				if p.simplify {
 					if id, ok := token.UnquoteIdent(arg.Text); ok {
 						arg.Text = id

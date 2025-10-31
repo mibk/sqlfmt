@@ -207,13 +207,13 @@ func (s *Scanner) scanAny() (tok Token) {
 	case '`':
 		// TODO: Implement escaping for this one.
 		id := s.scanIdentUntil(r)
-		return Token{Type: Ident, Text: string(r) + id}
+		return Token{Type: Quoted, Text: string(r) + id}
 	case '[':
 		id := s.scanIdentUntil(']')
-		return Token{Type: Ident, Text: string(r) + id}
+		return Token{Type: Quoted, Text: string(r) + id}
 	case '$', '%', '?':
 		id := s.scanIdent()
-		return Token{Type: Ident, Text: string(r) + id}
+		return Token{Type: Illegal, Text: string(r) + id}
 	default:
 		s.unread()
 		if id := s.scanIdent(); id != "" {
