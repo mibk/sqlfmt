@@ -3,3 +3,5 @@ from [table];
 
 alter table t1
 add index `index_name` (`column`);
+
+select x<>y;

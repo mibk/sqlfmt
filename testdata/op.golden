@@ -1,3 +1,5 @@
 SELECT *, a.*, SUM(b.price * (100 + b.vat)), @var := 'value'
 FROM a
 JOIN b;
+
+SELECT x <> y;

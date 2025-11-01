@@ -182,7 +182,12 @@ func (p *printer) print(args ...any) {
 				fallthrough
 			default:
 				p.print(arg.Text)
-			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
+			case token.Neq:
+				if p.simplify {
+					arg.Text = "!="
+				}
+				fallthrough
+			case token.Eq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
 				p.print(space, arg.Text, space)
 			case token.Comma:
 				p.removeLast(space)
