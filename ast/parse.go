@@ -33,6 +33,13 @@ type parser struct {
 
 	lastIndent     string
 	justDeindented bool
+
+	opts
+}
+
+type opts struct {
+	// alter switches parser to ALTER stmt mode.
+	alter bool
 }
 
 func ParseScript(r io.Reader) (*Script, error) {
@@ -128,6 +135,11 @@ func (p *parser) parseScript() *Script {
 }
 
 func (p *parser) parseStmt(kind token.Type) *Stmt {
+	// Reset parser options.
+	backup := p.opts
+	p.opts = opts{}
+	defer func() { p.opts = backup }()
+
 	end := kind
 	if kind == token.Lparen {
 		end = token.Rparen
@@ -207,6 +219,8 @@ func (p *parser) parseClause() *Clause {
 			c.nodes = append(c.nodes, sub)
 		case token.Keyword:
 			switch strings.ToUpper(p.tok.Text) {
+			case "ALTER":
+				p.alter = true
 			case "INTO", "CREATE", "ADD", "CHANGE", "CALL":
 				fnCallAsKword = false
 			case "REPLACE":
@@ -241,6 +255,10 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
+			if p.alter && p.tok.Type == token.Ident && strings.ToUpper(p.tok.Text) == "MODIFY" {
+				p.tok.Type = token.Keyword
+				return c
+			}
 			if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
 			} else if p.tok.Type == token.Comment && p.justDeindented {
