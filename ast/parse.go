@@ -74,6 +74,12 @@ func (p *parser) next() {
 		p.tok, p.peeked = p.peeked[0], p.peeked[1:]
 	} else {
 		p.tok = p.scan.Next()
+		if p.alter && p.tok.Type == token.Ident {
+			switch strings.ToUpper(p.tok.Text) {
+			case "MODIFY", "AFTER":
+				p.tok.Type = token.Keyword
+			}
+		}
 	}
 	if p.tok.Type == token.EOF && p.err == nil {
 		err := p.scan.Err()
@@ -246,6 +252,8 @@ func (p *parser) parseClause() *Clause {
 						break
 					}
 					fallthrough
+				case "MODIFY":
+					return c
 				default:
 					if token.OpensClause(kword) {
 						return c
@@ -256,10 +264,6 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
-			if p.alter && p.tok.Type == token.Ident && strings.ToUpper(p.tok.Text) == "MODIFY" {
-				p.tok.Type = token.Keyword
-				return c
-			}
 			if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
 			} else if p.tok.Type == token.Comment && p.justDeindented {
