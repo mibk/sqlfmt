@@ -14,17 +14,17 @@ import (
 
 var rewriteGolden = flag.Bool("f", false, "write golden files")
 
-func TestFmt(t *testing.T) {
-	*simplifyFlag = true
+func Test(t *testing.T) {
 	files, err := filepath.Glob("testdata/*.input")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	for _, name := range files {
-		test := strings.TrimSuffix(name, ".input")
-		t.Run(test, func(t *testing.T) {
-			testFmt(t, name)
+	for _, input := range files {
+		name := strings.TrimSuffix(filepath.Base(input), ".input")
+		t.Run(name, func(t *testing.T) {
+			*simplifyFlag = name == "simplify"
+			testFmt(t, input)
 		})
 	}
 }
