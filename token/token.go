@@ -12,6 +12,7 @@ var mariadbReservedWords string
 var (
 	isReserved  = make(map[string]bool)
 	isKeyword   = make(map[string]bool)
+	isDataType  = make(map[string]bool)
 	opensClause = make(map[string]bool)
 )
 
@@ -27,7 +28,9 @@ func init() {
 			opensClause[kw] = true
 		}
 
-		if kw, ok = strings.CutSuffix(kw, "*"); !ok {
+		if kw, ok = strings.CutSuffix(kw, "*"); ok {
+			isDataType[kw] = true
+		} else if kw, ok = strings.CutSuffix(kw, "("); !ok {
 			// This one is reserved, and a keyword.
 			isKeyword[kw] = true
 		}
@@ -69,6 +72,7 @@ const (
 	Keyword
 	Ident
 	Quoted
+	DataType
 	String
 
 	symbolStart

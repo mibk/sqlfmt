@@ -5,3 +5,5 @@ ALTER TABLE t1
 ADD INDEX index_name (`column`);
 
 SELECT x != y;
+
+SELECT `if`, `match`, `row_number`;

@@ -9,7 +9,7 @@ select replace ('sqlfmt','fmt','format');
 ALTER TABLE t1
 ADD INDEX index_name (c1),
 MODIFY foo int(1) null   ,
-CHANGE c2 c2 decimal(10,2) null after c1;
+CHANGE c2 c2 DECIMAL(10,2) null after c1;
 
 SELECT modify
 FROM bar;

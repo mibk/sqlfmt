@@ -218,8 +218,12 @@ func (s *Scanner) scanAny() (tok Token) {
 		s.unread()
 		if id := s.scanIdent(); id != "" {
 			t := Token{Type: Ident, Text: id}
-			if s.lastToken != Period && isKeyword[strings.ToUpper(id)] {
+			switch {
+			case s.lastToken == Period:
+			case isKeyword[strings.ToUpper(id)]:
 				t.Type = Keyword
+			case isDataType[strings.ToUpper(id)]:
+				t.Type = DataType
 			}
 			return t
 		}
