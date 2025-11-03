@@ -17,3 +17,8 @@ type Clause struct {
 	precede        []token.Token
 	nodes          []any
 }
+
+type TypeSpec struct {
+	Type token.Token
+	Spec *Stmt
+}

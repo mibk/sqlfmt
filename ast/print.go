@@ -81,6 +81,12 @@ type printer struct {
 	indent indentation
 	tokens []any
 	err    error // sticky
+
+	pflags
+}
+
+type pflags struct {
+	NoSpaceAfterComma bool
 }
 
 type whitespace byte
@@ -156,6 +162,11 @@ func (p *printer) print(args ...any) {
 					p.print(p.indent)
 				}
 			}
+		case *TypeSpec:
+			backup := p.pflags
+			p.NoSpaceAfterComma = true
+			p.print(arg.Type, arg.Spec)
+			p.pflags = backup
 		case token.Token:
 			switch arg.Type {
 			case token.Whitespace:
@@ -194,7 +205,11 @@ func (p *printer) print(args ...any) {
 				p.print(space, arg.Text, space)
 			case token.Comma:
 				p.removeLast(space)
-				p.print(arg.Text, space)
+				d := space
+				if p.NoSpaceAfterComma {
+					d = del
+				}
+				p.print(arg.Text, d)
 			case token.Semicolon:
 				p.removeLast(space)
 				p.print(arg.Text)

@@ -265,7 +265,16 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
-			if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
+			if p.tok.Type == token.DataType && p.peek().Type == token.Lparen {
+				spec := &TypeSpec{Type: p.tok}
+				p.next()
+				if p.tok.Type == token.Whitespace {
+					p.next()
+				}
+				p.next()
+				spec.Spec = p.parseStmt(token.Lparen)
+				c.nodes = append(c.nodes, spec)
+			} else if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
 			} else if p.tok.Type == token.Comment && p.justDeindented {
 				return c
