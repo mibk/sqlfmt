@@ -8,6 +8,7 @@ select replace ('sqlfmt','fmt','format');
 
 ALTER TABLE t1
 ADD INDEX index_name (c1),
+ADD COLUMN col0 ENUM ('yes' ,'no') not null,
 MODIFY foo int(1) null   ,
 CHANGE c2 c2 DECIMAL(10,2) null after c1;
 

@@ -265,7 +265,10 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
-			if p.tok.Type == token.DataType && p.peek().Type == token.Lparen {
+			if p.tok.Type == token.Ident && strings.ToUpper(p.tok.Text) == "ENUM" && p.peek().Type == token.Lparen {
+				p.tok.Type = token.DataType
+				continue
+			} else if p.tok.Type == token.DataType && p.peek().Type == token.Lparen {
 				spec := &TypeSpec{Type: p.tok}
 				p.next()
 				if p.tok.Type == token.Whitespace {
