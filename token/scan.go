@@ -174,7 +174,7 @@ func (s *Scanner) scanAny() (tok Token) {
 			s.read()
 			return Token{Type: Neq}
 		}
-		return Token{Type: Geq}
+		return Token{Type: Not}
 	case '*':
 		return Token{Type: Mul}
 	case '+':

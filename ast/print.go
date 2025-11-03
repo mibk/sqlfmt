@@ -203,6 +203,8 @@ func (p *printer) print(args ...any) {
 				fallthrough
 			case token.Eq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
 				p.print(space, arg.Text, space)
+			case token.Not:
+				p.print(arg.Text, del)
 			case token.Comma:
 				p.removeLast(space)
 				d := space
