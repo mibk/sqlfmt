@@ -18,6 +18,10 @@ type Clause struct {
 	nodes          []any
 }
 
+type CaseOp struct {
+	nodes []any
+}
+
 type TypeSpec struct {
 	Type token.Token
 	Spec *Stmt

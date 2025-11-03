@@ -1,0 +1,15 @@
+SELECT
+	CASE
+	WHEN isTrue THEN 1
+	WHEN orElse THEN 2
+	ELSE 3
+	END
+FROM foo;
+
+SELECT
+	(CASE
+		WHEN isTrue THEN 1
+		WHEN orElse THEN 2
+		ELSE 3
+	END)
+FROM foo;

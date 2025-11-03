@@ -162,6 +162,18 @@ func (p *printer) print(args ...any) {
 					p.print(p.indent)
 				}
 			}
+		case *CaseOp:
+			p.print("CASE", space)
+			p.indent++
+			for _, n := range arg.nodes {
+				p.print(n)
+			}
+			id := p.removeLast(p.indent)
+			p.indent--
+			if id != nil {
+				p.print(p.indent)
+			}
+			p.print("END", space)
 		case *TypeSpec:
 			backup := p.pflags
 			p.NoSpaceAfterComma = true

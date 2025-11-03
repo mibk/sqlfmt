@@ -239,6 +239,11 @@ func (p *parser) parseClause() *Clause {
 					p.tok.Type = token.Ident
 					continue
 				}
+			case "CASE":
+				p.next()
+				op := p.parseCaseOp()
+				c.nodes = append(c.nodes, op)
+				continue
 			}
 			if len(c.nodes) > 0 {
 				kword := p.tok.Text
@@ -285,6 +290,31 @@ func (p *parser) parseClause() *Clause {
 			} else if p.tok.Type == token.Comment && p.justDeindented {
 				return c
 			}
+			c.nodes = append(c.nodes, p.tok)
+			p.next()
+		}
+	}
+}
+
+func (p *parser) parseCaseOp() *CaseOp {
+	c := new(CaseOp)
+	for {
+		checkLoop("#case")
+		switch p.tok.Type {
+		case token.EOF, token.Semicolon, token.Rparen:
+			p.errorf("unexpected %v, expected END", p.tok.Type)
+			return c
+		case token.Lparen:
+			p.next()
+			sub := p.parseStmt(token.Lparen)
+			c.nodes = append(c.nodes, sub)
+		case token.Ident:
+			if strings.ToUpper(p.tok.Text) == "END" {
+				p.next()
+				return c
+			}
+			fallthrough
+		default:
 			c.nodes = append(c.nodes, p.tok)
 			p.next()
 		}
