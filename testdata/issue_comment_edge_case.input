@@ -1,0 +1,7 @@
+SELECT
+	IF(TRUE,
+		'yes',
+		'no'
+	) affirmation, # This is always true
+	stayHere
+FROM foo

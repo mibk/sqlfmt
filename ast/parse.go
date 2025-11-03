@@ -55,6 +55,9 @@ func ParseScript(r io.Reader) (*Script, error) {
 
 func (p *parser) next() {
 	defer func() {
+		if p.tok.Type != token.Comment {
+			p.justDeindented = false
+		}
 		if p.tok.Type != token.Whitespace {
 			return
 		}
