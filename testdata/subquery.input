@@ -12,7 +12,7 @@ FROM user
 
 SELECT
 	CONCAT(b.name,
-	b.publisher  ) info
+	b.publisher  )info
 FROM
 	book b
 ;

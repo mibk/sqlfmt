@@ -139,7 +139,7 @@ func (p *printer) print(args ...any) {
 				}
 			}
 			if parens {
-				p.print(token.Rparen)
+				p.print(token.Rparen, space)
 			} else {
 				p.print(newline)
 			}
