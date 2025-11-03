@@ -228,6 +228,7 @@ func (p *parser) parseClause() *Clause {
 			case "ALTER":
 				p.alter = true
 			case "INTO", "CREATE", "ADD", "CHANGE", "CALL",
+				"WITH",
 				"REFERENCES": // TODO: Is this right?
 				fnCallAsKword = false
 			case "REPLACE":
