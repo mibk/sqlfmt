@@ -4,4 +4,11 @@ SELECT
 		'no'
 	) affirmation, # This is always true
 	stayHere
-FROM foo
+FROM foo;
+
+SELECT
+	(t.finished IS NOT NULL) task_closed,
+
+	# This comment must not deindent.
+	t.other
+FROM foo t;

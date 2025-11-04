@@ -201,7 +201,9 @@ func (p *parser) parseClause() *Clause {
 	}
 
 	// Indentation should be one level +.
+	backup := p.lastIndent
 	p.lastIndent += "\t"
+	defer func() { p.lastIndent = backup }()
 
 	fnCallAsKword := true
 	for {
