@@ -12,3 +12,12 @@ SELECT
 	# This comment must not deindent.
 	t.other
 FROM foo t;
+
+SELECT
+	EXISTS (
+		SELECT 1
+		FROM bar
+	) existing,
+	# Do not deindent this.
+	IF(f.value, 'yes', 'no') AS special
+FROM foo;

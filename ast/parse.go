@@ -201,9 +201,7 @@ func (p *parser) parseClause() *Clause {
 	}
 
 	// Indentation should be one level +.
-	backup := p.lastIndent
 	p.lastIndent += "\t"
-	defer func() { p.lastIndent = backup }()
 
 	fnCallAsKword := true
 	for {
@@ -225,9 +223,14 @@ func (p *parser) parseClause() *Clause {
 		case token.Rparen, token.Semicolon:
 			return c
 		case token.Lparen:
+			// A hack: backup the indent.
+			backup := p.lastIndent
+
 			p.next()
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
+
+			p.lastIndent = backup
 		case token.Keyword:
 			switch strings.ToUpper(p.tok.Text) {
 			case "ALTER":
