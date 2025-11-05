@@ -292,6 +292,7 @@ func (p *parser) parseClause() *Clause {
 				p.next()
 				spec.Spec = p.parseStmt(token.Lparen)
 				c.nodes = append(c.nodes, spec)
+				continue
 			} else if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
 			} else if p.tok.Type == token.Comment && p.justDeindented {

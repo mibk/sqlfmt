@@ -1,0 +1,3 @@
+SELECT
+	CAST(d.percentage / 100 AS DECIMAL(5, 2)) val
+FROM foo;
