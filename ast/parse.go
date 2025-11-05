@@ -237,8 +237,10 @@ func (p *parser) parseClause() *Clause {
 				p.alter = true
 			case "INTO", "CREATE", "ADD", "CHANGE", "CALL",
 				"WITH",
-				"REFERENCES": // TODO: Is this right?
+				"KEY":
 				fnCallAsKword = false
+			case "UPDATE":
+				fnCallAsKword = true
 			case "REPLACE":
 				if p.peek().Type == token.Lparen {
 					p.tok.Type = token.Ident

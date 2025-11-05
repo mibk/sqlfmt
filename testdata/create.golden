@@ -1,0 +1,9 @@
+CREATE TABLE foo (
+	id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name varchar(100) NOT NULL,
+	date_value datetime NULL,
+	UNIQUE KEY name (name)
+);
+
+INSERT INTO utils (name, date_value)
+VALUES ('entry_lock', NULL);
