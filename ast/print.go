@@ -174,6 +174,9 @@ func (p *printer) print(args ...any) {
 				p.print(p.indent)
 			}
 			p.print("END", space)
+			if arg.TaggedEnd {
+				p.print("CASE", space)
+			}
 		case *TypeSpec:
 			backup := p.pflags
 			p.NoSpaceAfterComma = true

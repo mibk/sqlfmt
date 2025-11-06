@@ -13,3 +13,10 @@ SELECT
 		ELSE 3
 	END)
 FROM foo;
+
+# MSSQL
+SELECT CASE
+	WHEN done = 1 THEN 'done'
+	ELSE 'in_progress'
+	END CASE
+FROM foo;

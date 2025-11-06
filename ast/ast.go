@@ -20,6 +20,8 @@ type Clause struct {
 
 type CaseOp struct {
 	nodes []any
+
+	TaggedEnd bool
 }
 
 type TypeSpec struct {

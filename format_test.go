@@ -59,7 +59,7 @@ func fmtInput(t *testing.T, filename string, src []byte) []byte {
 	t.Helper()
 	buf := new(bytes.Buffer)
 	if err := formatCode(filename, buf, bytes.NewReader(src)); err != nil {
-		t.Errorf("unexpected err: %v", err)
+		t.Fatalf("unexpected err: %v", err)
 	}
 	return buf.Bytes()
 }

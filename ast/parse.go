@@ -113,6 +113,13 @@ func (p *parser) peek() token.Token {
 	}
 }
 
+func (p *parser) skipPeeked() {
+	for len(p.peeked) > 0 {
+		p.next()
+	}
+	p.next()
+}
+
 func (p *parser) errorf(format string, args ...interface{}) {
 	if p.err == nil {
 		p.tok.Type = token.EOF
@@ -319,6 +326,11 @@ func (p *parser) parseCaseOp() *CaseOp {
 		case token.Ident:
 			if strings.ToUpper(p.tok.Text) == "END" {
 				p.next()
+				tok := p.peek()
+				if tok.Type == token.Keyword && tok.Text == "CASE" {
+					c.TaggedEnd = true
+					p.skipPeeked()
+				}
 				return c
 			}
 			fallthrough
