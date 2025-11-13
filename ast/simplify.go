@@ -31,6 +31,10 @@ func simplify(x any) {
 	case *Clause:
 		// NOTE: x.precede is just comments.
 		x.nodes = simplifyNodes(x.nodes)
+	case *CaseOp:
+		x.nodes = simplifyNodes(x.nodes)
+	case *TypeSpec:
+		// There's nothing to simplify here.
 	}
 }
 

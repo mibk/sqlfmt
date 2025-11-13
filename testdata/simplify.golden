@@ -7,3 +7,8 @@ ADD INDEX index_name (`column`);
 SELECT x != y;
 
 SELECT `if`, `match`, `row_number`;
+
+SELECT CAST(CASE
+	WHEN TRUE THEN 42
+	DEFAULT 0
+END AS int(11))
