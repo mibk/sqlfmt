@@ -12,3 +12,11 @@ select cast(case
 when true then 42
 default 0
 end as int (11))
+
+select
+	x . bar as bar,
+	x . `bar` as `bar`,
+	x . bar as `bar`,
+	x . `bar` as foo,
+	x . `bar`  bar
+from foo as x

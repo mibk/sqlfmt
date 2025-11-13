@@ -12,3 +12,11 @@ SELECT CAST(CASE
 	WHEN TRUE THEN 42
 	DEFAULT 0
 END AS int(11))
+
+SELECT
+	x.bar bar,
+	x.bar bar,
+	x.bar bar,
+	x.bar foo,
+	x.bar bar
+FROM foo x
