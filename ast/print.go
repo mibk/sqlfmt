@@ -11,11 +11,10 @@ import (
 )
 
 // Fprint pretty-prints an AST node to w.
-func Fprint(w io.Writer, node any, simplify bool) error {
+func Fprint(w io.Writer, node any) error {
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.StripEscape)
 
 	p := new(printer)
-	p.simplify = simplify
 	p.print(node)
 	if p.err != nil {
 		return p.err
@@ -76,8 +75,6 @@ func Fprint(w io.Writer, node any, simplify bool) error {
 type indentation int
 
 type printer struct {
-	simplify bool
-
 	indent indentation
 	tokens []any
 	err    error // sticky
@@ -202,21 +199,9 @@ func (p *printer) print(args ...any) {
 			case token.DataType:
 				arg.Text = strings.ToLower(arg.Text)
 				p.print(arg.Text)
-			case token.Quoted:
-				if p.simplify {
-					if id, ok := token.UnquoteIdent(arg.Text); ok {
-						arg.Text = id
-					}
-				}
-				fallthrough
 			default:
 				p.print(arg.Text)
-			case token.Neq:
-				if p.simplify {
-					arg.Text = "!="
-				}
-				fallthrough
-			case token.Eq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
+			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
 				p.print(space, arg.Text, space)
 			case token.Not:
 				p.print(arg.Text, del)

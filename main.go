@@ -107,5 +107,10 @@ func formatCode(filename string, out io.Writer, in io.Reader) error {
 	} else if err != nil {
 		return err
 	}
-	return ast.Fprint(out, script, *simplifyFlag)
+	if *simplifyFlag {
+		if err := ast.Simplify(script); err != nil {
+			return err
+		}
+	}
+	return ast.Fprint(out, script)
 }
