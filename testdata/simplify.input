@@ -19,4 +19,7 @@ select
 	x . bar as `bar`,
 	x . `bar` as foo,
 	x . `bar`  bar
-from foo as x
+from foo as x;
+
+# Do not remove the 'AS' keyword here.
+SELECT CAST(created AS date);

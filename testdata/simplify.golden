@@ -19,4 +19,7 @@ SELECT
 	x.bar bar,
 	x.bar foo,
 	x.bar bar
-FROM foo x
+FROM foo x;
+
+# Do not remove the 'AS' keyword here.
+SELECT CAST(created AS date);

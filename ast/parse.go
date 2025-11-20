@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"log"
@@ -239,7 +240,9 @@ func (p *parser) parseClause() *Clause {
 
 			p.lastIndent = backup
 		case token.Keyword:
-			switch strings.ToUpper(p.tok.Text) {
+			kword := strings.ToUpper(p.tok.Text)
+			c.Type = cmp.Or(c.Type, kword)
+			switch kword {
 			case "ALTER":
 				p.alter = true
 			case "INTO", "CREATE", "ADD", "CHANGE", "CALL",
@@ -260,8 +263,7 @@ func (p *parser) parseClause() *Clause {
 				continue
 			}
 			if len(c.nodes) > 0 {
-				kword := p.tok.Text
-				switch strings.ToUpper(kword) {
+				switch kword {
 				case "ON":
 					next := p.peek()
 					if strings.ToUpper(next.Text) == "DUPLICATE" {
@@ -287,6 +289,7 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
+			c.Type = cmp.Or(c.Type, "<unknown>")
 			if p.tok.Type == token.Ident && strings.ToUpper(p.tok.Text) == "ENUM" && p.peek().Type == token.Lparen {
 				p.tok.Type = token.DataType
 				continue

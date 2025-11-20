@@ -29,18 +29,23 @@ func simplify(x any) {
 			simplify(stmt)
 		}
 	case *Stmt:
-		x.nodes = simplifyNodes(x.nodes)
+		x.nodes = simplifyNodes(x.nodes, false)
 	case *Clause:
 		// NOTE: x.precede is just comments.
-		x.nodes = simplifyNodes(x.nodes)
+		rewriteAS := false
+		switch x.Type {
+		case "SELECT", "FROM", "JOIN":
+			rewriteAS = true
+		}
+		x.nodes = simplifyNodes(x.nodes, rewriteAS)
 	case *CaseOp:
-		x.nodes = simplifyNodes(x.nodes)
+		x.nodes = simplifyNodes(x.nodes, false)
 	case *TypeSpec:
 		// There's nothing to simplify here.
 	}
 }
 
-func simplifyNodes(nodes []any) []any {
+func simplifyNodes(nodes []any, rewriteAS bool) []any {
 	var nn []any
 	var toks []token.Token
 	flush := func() {
@@ -58,7 +63,7 @@ func simplifyNodes(nodes []any) []any {
 			nn = append(nn, x)
 		case token.Token:
 			x = simplifyToken(x)
-			if x.Type == token.Ident {
+			if rewriteAS && x.Type == token.Ident {
 				toks = removeLastAS(toks)
 			}
 			toks = append(toks, x)
