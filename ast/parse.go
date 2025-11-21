@@ -121,7 +121,7 @@ func (p *parser) skipPeeked() {
 	p.next()
 }
 
-func (p *parser) errorf(format string, args ...interface{}) {
+func (p *parser) errorf(format string, args ...any) {
 	if p.err == nil {
 		p.tok.Type = token.EOF
 		se := &SyntaxError{Err: fmt.Errorf(format, args...)}
