@@ -12,6 +12,9 @@ ADD COLUMN col0 ENUM ('yes' ,'no') not null,
 MODIFY foo int(1) null   ,
 CHANGE c2 c2 DECIMAL(10,2) null after c1;
 
+alter table t2
+modify foo INT(2) not null;
+
 SELECT modify
 FROM bar;
 

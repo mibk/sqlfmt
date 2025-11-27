@@ -54,6 +54,17 @@ func ParseScript(r io.Reader) (*Script, error) {
 	return s, nil
 }
 
+func (p *parser) scanNext() token.Token {
+	tok := p.scan.Next()
+	if p.alter && tok.Type == token.Ident {
+		switch strings.ToUpper(tok.Text) {
+		case "MODIFY", "AFTER":
+			tok.Type = token.Keyword
+		}
+	}
+	return tok
+}
+
 func (p *parser) next() {
 	defer func() {
 		if p.tok.Type != token.Comment {
@@ -77,13 +88,7 @@ func (p *parser) next() {
 	if len(p.peeked) > 0 {
 		p.tok, p.peeked = p.peeked[0], p.peeked[1:]
 	} else {
-		p.tok = p.scan.Next()
-		if p.alter && p.tok.Type == token.Ident {
-			switch strings.ToUpper(p.tok.Text) {
-			case "MODIFY", "AFTER":
-				p.tok.Type = token.Keyword
-			}
-		}
+		p.tok = p.scanNext()
 	}
 	if p.tok.Type == token.EOF && p.err == nil {
 		err := p.scan.Err()
@@ -106,7 +111,7 @@ func (p *parser) peek() token.Token {
 	}
 	for {
 		checkLoop("#peek")
-		tok := p.scan.Next()
+		tok := p.scanNext()
 		p.peeked = append(p.peeked, tok)
 		if tok.Type != token.Whitespace {
 			return tok
