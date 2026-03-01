@@ -116,14 +116,30 @@ func (p *printer) print(args ...any) {
 			if parens {
 				p.print(token.Lparen)
 			}
+			allNewlines := arg.hasInterClauseNewline()
 			indented := false
-			for _, n := range arg.nodes {
+			prevNewline := false
+			prevSingleKeyword := false
+			for i, n := range arg.nodes {
 				if parens && !indented && isNewline(n) {
 					indented = true
 					p.indent++
 				} else if c, ok := n.(*Clause); ok && !indented {
 					// Looks like a hack to me.
 					c.indentNextLine = true
+				}
+				if _, ok := n.(*Clause); ok && i > 0 && allNewlines && !prevNewline && !prevSingleKeyword {
+					p.print(newline, p.indent)
+				}
+				prevNewline = isNewline(n)
+				prevSingleKeyword = false
+				if c, ok := n.(*Clause); ok {
+					if len(c.nodes) > 0 && isNewline(c.nodes[len(c.nodes)-1]) {
+						prevNewline = true
+					}
+					if isSingleKeyword(c) {
+						prevSingleKeyword = true
+					}
 				}
 				p.print(n)
 			}
@@ -268,10 +284,78 @@ func (p *printer) removeLast(tok any) any {
 	return nil
 }
 
+// isSingleKeyword reports whether a clause contains only a single
+// keyword token, possibly followed by trailing whitespace (like LEFT,
+// JOIN, etc.). Such clauses are prefixes that should stay attached
+// to the following clause.
+func isSingleKeyword(c *Clause) bool {
+	n := 0
+	for _, node := range c.nodes {
+		tok, ok := node.(token.Token)
+		if !ok {
+			return false
+		}
+		if tok.Type == token.Whitespace {
+			continue
+		}
+		if tok.Type == token.Keyword && n == 0 {
+			n++
+			continue
+		}
+		return false
+	}
+	return n == 1
+}
+
 func isNewline(n any) bool {
 	tok, ok := n.(token.Token)
 	if !ok {
 		return false
 	}
 	return strings.ContainsRune(tok.Text, '\n')
+}
+
+// hasInterClauseNewline reports whether any boundary between
+// adjacent clauses contains a newline, ignoring boundaries between
+// join prefix clauses (LEFT, RIGHT, etc.) and their following clause.
+func (s *Stmt) hasInterClauseNewline() bool {
+	clauseCount := 0
+	for _, n := range s.nodes {
+		if _, ok := n.(*Clause); ok {
+			clauseCount++
+		}
+	}
+	if clauseCount < 2 {
+		return false
+	}
+	// Check if any node preceding a clause (after the first) has a
+	// newline. The preceding node can be a whitespace token in
+	// stmt.nodes or the trailing whitespace inside the prior clause.
+	seenFirst := false
+	for i, n := range s.nodes {
+		if _, ok := n.(*Clause); !ok {
+			continue
+		}
+		if !seenFirst {
+			seenFirst = true
+			continue
+		}
+		// Skip boundaries where the previous clause is a single
+		// keyword (like LEFT, JOIN) that acts as a prefix.
+		prev := s.nodes[i-1]
+		if pc, ok := prev.(*Clause); ok && isSingleKeyword(pc) {
+			continue
+		}
+		if isNewline(prev) {
+			return true
+		}
+		// The previous node might be a clause whose last node
+		// is trailing whitespace with a newline.
+		if pc, ok := prev.(*Clause); ok && len(pc.nodes) > 0 {
+			if isNewline(pc.nodes[len(pc.nodes)-1]) {
+				return true
+			}
+		}
+	}
+	return false
 }

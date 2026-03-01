@@ -20,3 +20,9 @@ where user_id in (
 	'Bob'    ,
 	'Cecil'  )
 ;
+
+select a
+from t where x = 1 order by a;
+
+select a from t
+where x = 1 order by a;

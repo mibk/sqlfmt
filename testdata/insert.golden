@@ -1,4 +1,5 @@
-INSERT INTO users VALUES
+INSERT INTO users
+VALUES
 	(1, 'ken'), (2, 'dmr')
 ON duplicate KEY UPDATE name = VALUE(name);
 
