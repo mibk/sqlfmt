@@ -34,6 +34,8 @@ type parser struct {
 	lastIndent     string
 	justDeindented bool
 
+	loopCnt map[string]int
+
 	opts
 }
 
@@ -43,8 +45,10 @@ type opts struct {
 }
 
 func ParseScript(r io.Reader) (*Script, error) {
-	clear(loopCnt)
-	p := &parser{scan: token.NewScanner(r)}
+	p := &parser{
+		scan:    token.NewScanner(r),
+		loopCnt: make(map[string]int),
+	}
 	p.next() // init
 	s := p.parseScript()
 	if p.err != nil {
@@ -109,7 +113,7 @@ func (p *parser) peek() token.Token {
 		return p.peeked[len(p.peeked)-1]
 	}
 	for {
-		checkLoop("#peek")
+		p.checkLoop("#peek")
 		tok := p.scanNext()
 		p.peeked = append(p.peeked, tok)
 		if tok.Type != token.Whitespace {
@@ -137,7 +141,7 @@ func (p *parser) errorf(format string, args ...any) {
 func (p *parser) parseScript() *Script {
 	s := new(Script)
 	for p.tok.Type != token.EOF {
-		checkLoop("#script")
+		p.checkLoop("#script")
 		var offset bool
 		if p.tok.Type == token.Whitespace {
 			_, ws, _ := strings.Cut(p.tok.Text, "\n")
@@ -166,7 +170,7 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	stmt := new(Stmt)
 	stmt.kind = kind
 	for {
-		checkLoop("#stmt")
+		p.checkLoop("#stmt")
 		switch p.tok.Type {
 		case token.EOF:
 			if p.tok.Type != end && end != token.Semicolon {
@@ -198,7 +202,7 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 func (p *parser) parseClause() *Clause {
 	c := new(Clause)
 	for p.tok.Type == token.Comment {
-		checkLoop("#comment")
+		p.checkLoop("#comment")
 		c.precede = append(c.precede, p.tok)
 		p.next()
 		if p.tok.Type != token.Whitespace {
@@ -213,7 +217,7 @@ func (p *parser) parseClause() *Clause {
 
 	fnCallAsKword := true
 	for {
-		checkLoop("#clause")
+		p.checkLoop("#clause")
 		switch p.tok.Type {
 		case token.EOF:
 			if len(c.nodes) == 0 {
@@ -317,7 +321,7 @@ func (p *parser) parseClause() *Clause {
 func (p *parser) parseCaseOp() *CaseOp {
 	c := new(CaseOp)
 	for {
-		checkLoop("#case")
+		p.checkLoop("#case")
 		switch p.tok.Type {
 		case token.EOF, token.Semicolon, token.Rparen:
 			p.errorf("unexpected %v, expected END", p.tok.Type)
@@ -344,12 +348,10 @@ func (p *parser) parseCaseOp() *CaseOp {
 	}
 }
 
-var loopCnt = make(map[string]int)
-
-func checkLoop(name string) {
-	loopCnt[name]++
+func (p *parser) checkLoop(name string) {
+	p.loopCnt[name]++
 	const limit = 5000
-	if loopCnt[name] > limit {
+	if p.loopCnt[name] > limit {
 		panic(fmt.Sprint("loop ", name, " is over ", limit, " iterations"))
 	}
 }
