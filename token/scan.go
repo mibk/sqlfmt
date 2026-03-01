@@ -132,7 +132,7 @@ func (s *Scanner) scanAny() (tok Token) {
 	case ')':
 		return Token{Type: Rparen}
 	case ':':
-		switch r2 := s.peek(); r2 {
+		switch s.peek() {
 		case '=':
 			s.read()
 			return Token{Type: Assign}
@@ -141,7 +141,7 @@ func (s *Scanner) scanAny() (tok Token) {
 	case '=':
 		return Token{Type: Eq}
 	case '<':
-		switch r2 := s.peek(); r2 {
+		switch s.peek() {
 		case '<':
 			s.read()
 			return Token{Type: BitShl, Text: "<<"}
@@ -159,7 +159,7 @@ func (s *Scanner) scanAny() (tok Token) {
 			return Token{Type: Lt}
 		}
 	case '>':
-		switch r2 := s.peek(); r2 {
+		switch s.peek() {
 		case '>':
 			s.read()
 			return Token{Type: BitShr, Text: ">>"}
@@ -169,7 +169,7 @@ func (s *Scanner) scanAny() (tok Token) {
 		}
 		return Token{Type: Gt}
 	case '!':
-		switch r2 := s.peek(); r2 {
+		switch s.peek() {
 		case '=':
 			s.read()
 			return Token{Type: Neq}
@@ -180,7 +180,7 @@ func (s *Scanner) scanAny() (tok Token) {
 	case '+':
 		return Token{Type: Add}
 	case '-':
-		switch r2 := s.peek(); r2 {
+		switch s.peek() {
 		case '-':
 			s.read()
 			if s.peek() == ' ' {
@@ -190,7 +190,6 @@ func (s *Scanner) scanAny() (tok Token) {
 		default:
 			return Token{Type: Sub}
 		}
-		return Token{Type: Gt}
 	case '.':
 		return Token{Type: Period}
 	case ',':

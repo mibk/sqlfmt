@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 
 	"mibk.dev/sqlfmt/token"
@@ -135,8 +134,6 @@ func (p *parser) errorf(format string, args ...any) {
 	}
 }
 
-var _ = log.Println
-
 func (p *parser) parseScript() *Script {
 	s := new(Script)
 	for p.tok.Type != token.EOF {
@@ -170,8 +167,6 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	stmt.kind = kind
 	for {
 		checkLoop("#stmt")
-		// log.Println(p.tok)
-
 		switch p.tok.Type {
 		case token.EOF:
 			if p.tok.Type != end && end != token.Semicolon {

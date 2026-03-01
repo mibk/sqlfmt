@@ -99,7 +99,7 @@ const (
 	symbolEnd
 )
 
-// UnquoteIdent returnes the unquoted version of s if possible.
+// UnquoteIdent returns the unquoted version of s if possible.
 // Otherwise, false is returned as the second return value.
 func UnquoteIdent(id string) (u string, ok bool) {
 	if len(id) < 3 {
