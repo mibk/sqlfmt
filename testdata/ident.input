@@ -1,5 +1,7 @@
 select `all`, [select] as [from] , r . read from `table`;
 
+select `col``name` from t1;
+
 select count ( * ) ;
 
 replace into t1 values('a', 'b');

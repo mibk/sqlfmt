@@ -235,7 +235,7 @@ func (p *parser) parseClause() *Clause {
 		case token.Rparen, token.Semicolon:
 			return c
 		case token.Lparen:
-			// A hack: backup the indent.
+			// Save and restore indent level across subquery.
 			backup := p.lastIndent
 
 			p.next()

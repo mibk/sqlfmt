@@ -125,7 +125,7 @@ func (p *printer) print(args ...any) {
 					indented = true
 					p.indent++
 				} else if c, ok := n.(*Clause); ok && !indented {
-					// Looks like a hack to me.
+					// Indent the next line when inside parens without a leading newline.
 					c.indentNextLine = true
 				}
 				if _, ok := n.(*Clause); ok && i > 0 && allNewlines && !prevNewline && !prevSingleKeyword {

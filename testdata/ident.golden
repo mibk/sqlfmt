@@ -1,5 +1,7 @@
 SELECT `all`, [select] AS [from], r.read FROM `table`;
 
+SELECT `col``name` FROM t1;
+
 SELECT COUNT(*);
 
 REPLACE INTO t1 VALUES ('a', 'b');
