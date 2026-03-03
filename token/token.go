@@ -39,10 +39,12 @@ func init() {
 	}
 }
 
+// OpensClause reports whether the keyword s opens a new SQL clause.
 func OpensClause(s string) bool {
 	return opensClause[strings.ToUpper(s)]
 }
 
+// Token represents a lexical token with its type, text, and position.
 type Token struct {
 	Type Type
 	Text string
@@ -61,6 +63,7 @@ func (t Token) String() string {
 
 //go:generate go tool stringer -type Type -linecomment
 
+// Type is the type of a lexical token.
 type Type uint
 
 const (

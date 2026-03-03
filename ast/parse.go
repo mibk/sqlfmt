@@ -44,6 +44,7 @@ type opts struct {
 	alter bool
 }
 
+// ParseScript parses SQL source from r and returns the AST.
 func ParseScript(r io.Reader) (*Script, error) {
 	p := &parser{
 		scan:    token.NewScanner(r),

@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 )
 
+// ScanError records a scanner error and the position where it occurred.
 type ScanError struct {
 	Pos Pos
 	Err error
@@ -17,6 +18,7 @@ func (e *ScanError) Error() string {
 	return fmt.Sprintf("line:%v: %v", e.Pos, e.Err)
 }
 
+// Pos represents a position in the source (line and column).
 type Pos struct {
 	Line, Column int
 }
@@ -27,6 +29,7 @@ func (p Pos) String() string {
 
 const eof = -1
 
+// Scanner tokenizes SQL source text into a stream of tokens.
 type Scanner struct {
 	r    *bufio.Reader
 	done bool
@@ -37,6 +40,7 @@ type Scanner struct {
 	lastToken   Type
 }
 
+// NewScanner returns a new Scanner that reads from r.
 func NewScanner(r io.Reader) *Scanner {
 	return &Scanner{
 		r:    bufio.NewReader(r),
@@ -45,6 +49,7 @@ func NewScanner(r io.Reader) *Scanner {
 	}
 }
 
+// Next scans and returns the next token.
 func (s *Scanner) Next() (tok Token) {
 	pos := s.pos()
 	tok = s.scanAny()
@@ -58,6 +63,7 @@ func (s *Scanner) Next() (tok Token) {
 	return tok
 }
 
+// Err returns the first non-EOF error encountered by the scanner.
 func (s *Scanner) Err() error { return s.err }
 
 func (s *Scanner) errorf(format string, args ...any) Token {

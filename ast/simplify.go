@@ -8,6 +8,8 @@ import (
 	"mibk.dev/sqlfmt/token"
 )
 
+// Simplify applies optional simplifications to the AST: unquoting
+// identifiers, removing unnecessary AS, and normalizing <> to !=.
 func Simplify(x any) (err error) {
 	defer func() {
 		v := recover()
