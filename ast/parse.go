@@ -208,8 +208,12 @@ func (p *parser) parseClause() *Clause {
 		if p.tok.Type != token.Whitespace {
 			break
 		}
-		c.precede = append(c.precede, p.tok)
+		ws := p.tok
 		p.next()
+		if p.tok.Type == token.EOF {
+			break
+		}
+		c.precede = append(c.precede, ws)
 	}
 
 	// Indentation should be one level +.
@@ -219,20 +223,7 @@ func (p *parser) parseClause() *Clause {
 	for {
 		p.checkLoop("#clause")
 		switch p.tok.Type {
-		case token.EOF:
-			if len(c.nodes) == 0 {
-				// An even uglier hack so I can sleep.
-				if ws := c.precede[len(c.precede)-1]; ws.Type == token.Whitespace {
-					c.precede = c.precede[:len(c.precede)-1]
-				}
-				return c
-			}
-			// Ugly hack so I can sleep.
-			if ws, ok := c.nodes[len(c.nodes)-1].(token.Token); ok && ws.Type == token.Whitespace {
-				c.nodes = c.nodes[:len(c.nodes)-1]
-			}
-			fallthrough
-		case token.Rparen, token.Semicolon:
+		case token.EOF, token.Rparen, token.Semicolon:
 			return c
 		case token.Lparen:
 			// Save and restore indent level across subquery.
@@ -293,6 +284,15 @@ func (p *parser) parseClause() *Clause {
 			}
 			fallthrough
 		default:
+			if p.tok.Type == token.Whitespace {
+				ws := p.tok
+				p.next()
+				if p.tok.Type == token.EOF {
+					continue
+				}
+				c.nodes = append(c.nodes, ws)
+				continue
+			}
 			c.Type = cmp.Or(c.Type, "<unknown>")
 			if p.tok.Type == token.Ident && strings.ToUpper(p.tok.Text) == "ENUM" && p.peek().Type == token.Lparen {
 				p.tok.Type = token.DataType
