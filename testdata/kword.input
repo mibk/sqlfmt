@@ -5,3 +5,6 @@ order by date_added
 from user u
 join group g on u.group_id = g.id
 where match (g.name ) against ( ? )
+;
+select table_name from information_schema.tables
+where table_schema = database() and table_type = 'BASE TABLE'

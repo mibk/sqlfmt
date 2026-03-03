@@ -5,3 +5,7 @@ SELECT ROW_NUMBER() OVER (
 FROM user u
 JOIN GROUP g ON u.group_id = g.id
 WHERE MATCH(g.name) AGAINST(?)
+;
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'
