@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,13 +30,13 @@ func Test(t *testing.T) {
 
 func testFmt(t *testing.T, filename string) {
 	t.Helper()
-	input, err := ioutil.ReadFile(filename)
+	input, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	goldenName := strings.TrimSuffix(filename, ".input") + ".golden"
-	golden, _ := ioutil.ReadFile(goldenName)
+	golden, _ := os.ReadFile(goldenName)
 
 	t.Log(filename)
 	t.Log(goldenName)

@@ -94,10 +94,9 @@ func formatFile(path string, perm fs.FileMode, data io.ReadCloser) error {
 
 	if *inPlace {
 		return os.WriteFile(path, buf.Bytes(), perm)
-	} else {
-		_, err := io.Copy(os.Stdout, buf)
-		return err
 	}
+	_, err := io.Copy(os.Stdout, buf)
+	return err
 }
 
 func formatCode(filename string, out io.Writer, in io.Reader) error {

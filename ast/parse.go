@@ -255,7 +255,7 @@ func (p *parser) parseClause() *Clause {
 				fnCallAsKword = false
 			case "UPDATE":
 				fnCallAsKword = true
-			case "REPLACE", "DATABASE":
+			case "REPLACE", "DATABASE", "SCHEMA":
 				if p.peek().Type == token.Lparen {
 					p.tok.Type = token.Ident
 					continue
