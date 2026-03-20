@@ -105,9 +105,14 @@ func (p *printer) print(args ...any) {
 		default:
 			p.err = fmt.Errorf("unsupported type %T", arg)
 		case *Script:
-			for _, stmt := range arg.Stmts {
-				p.print(stmt)
+			for _, node := range arg.Stmts {
+				p.print(node)
 			}
+		case *DelimiterBlock:
+			if arg.offset {
+				p.print(newline)
+			}
+			p.print(arg.Open + "\n" + arg.Body + arg.Close + "\n")
 		case *Stmt:
 			if arg.offset {
 				p.print(newline)

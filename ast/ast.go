@@ -3,8 +3,18 @@ package ast
 import "mibk.dev/sqlfmt/token"
 
 // Script is the root AST node representing one or more SQL statements.
+// Stmts contains *Stmt and *DelimiterBlock nodes.
 type Script struct {
-	Stmts []*Stmt
+	Stmts []any
+}
+
+// DelimiterBlock represents a DELIMITER ... DELIMITER ; block
+// whose body is preserved verbatim (not formatted).
+type DelimiterBlock struct {
+	Open   string // e.g. "DELIMITER //"
+	Body   string // raw text between the two DELIMITER commands
+	Close  string // e.g. "DELIMITER ;"
+	offset bool
 }
 
 // Stmt represents a single SQL statement.

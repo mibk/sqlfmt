@@ -149,6 +149,12 @@ func (p *parser) parseScript() *Script {
 			offset = strings.Contains(ws, "\n")
 			p.next()
 		}
+		if p.tok.Type == token.Ident && strings.EqualFold(p.tok.Text, "DELIMITER") {
+			db := p.parseDelimiterBlock()
+			db.offset = offset
+			s.Stmts = append(s.Stmts, db)
+			continue
+		}
 		stmt := p.parseStmt(token.Semicolon)
 		stmt.offset = offset
 		if len(stmt.nodes) > 0 {
@@ -156,6 +162,23 @@ func (p *parser) parseScript() *Script {
 		}
 	}
 	return s
+}
+
+func (p *parser) parseDelimiterBlock() *DelimiterBlock {
+	kword := p.tok.Text // preserve original case
+	rest := p.scan.ScanRestOfLine()
+	delimStr := strings.TrimSpace(rest)
+	open := kword + " " + delimStr
+
+	body, closeLine := p.scan.ScanRawUntil("DELIMITER")
+	close := strings.TrimRight(closeLine, "\r\n")
+
+	p.next() // resync parser token state
+	return &DelimiterBlock{
+		Open:  open,
+		Body:  body,
+		Close: close,
+	}
 }
 
 func (p *parser) parseStmt(kind token.Type) *Stmt {

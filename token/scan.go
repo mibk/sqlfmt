@@ -364,3 +364,51 @@ func (s *Scanner) scanIdentUntil(delim rune) string {
 }
 
 func isDigit(r rune) bool { return '0' <= r && r <= '9' }
+
+// ScanRestOfLine reads raw runes until newline or EOF and returns the
+// accumulated text (excluding the newline).
+func (s *Scanner) ScanRestOfLine() string {
+	var b strings.Builder
+	for {
+		r := s.read()
+		if r == '\n' || r == eof {
+			return b.String()
+		}
+		b.WriteRune(r)
+	}
+}
+
+// ScanRawUntil reads raw runes, accumulating text, until a line
+// starts with prefix (case-insensitive). Returns the body (everything
+// before the matched line) and the full matched line text. If EOF is
+// reached without a match, body contains all remaining text and
+// matchedLine is empty.
+func (s *Scanner) ScanRawUntil(prefix string) (body, matchedLine string) {
+	var buf strings.Builder
+	for {
+		// Read one full line.
+		var line strings.Builder
+		for {
+			r := s.read()
+			if r == eof {
+				buf.WriteString(line.String())
+				return buf.String(), ""
+			}
+			line.WriteRune(r)
+			if r == '\n' {
+				break
+			}
+		}
+		l := line.String()
+		trimmed := strings.TrimRight(l, "\r\n")
+		if len(trimmed) >= len(prefix) && strings.EqualFold(trimmed[:len(prefix)], prefix) {
+			// Leave the trailing newline unconsumed so the parser
+			// can account for blank-line offsets between statements.
+			if len(l) > len(trimmed) {
+				s.unread()
+			}
+			return buf.String(), trimmed
+		}
+		buf.WriteString(l)
+	}
+}

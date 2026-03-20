@@ -27,9 +27,11 @@ func simplify(x any) {
 	default:
 		panic(fmt.Errorf("ast: unknown type: %T", x))
 	case *Script:
-		for _, stmt := range x.Stmts {
-			simplify(stmt)
+		for _, node := range x.Stmts {
+			simplify(node)
 		}
+	case *DelimiterBlock:
+		// Nothing to simplify.
 	case *Stmt:
 		x.nodes = simplifyNodes(x.nodes, false)
 	case *Clause:
