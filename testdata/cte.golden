@@ -1,0 +1,26 @@
+WITH base AS (SELECT id FROM items)
+SELECT *
+FROM base;
+
+WITH base AS (
+	SELECT id FROM items
+),
+grouped AS (
+	SELECT id, COUNT(*) FROM base GROUP BY id
+)
+SELECT *
+FROM grouped;
+
+INSERT INTO target (a, b, c)
+WITH base AS (
+	SELECT a, b, c FROM src WHERE flag = ?
+),
+ranked AS (
+	SELECT a, b, c,
+		ROW_NUMBER() OVER (PARTITION BY a ORDER BY b) AS rn
+	FROM base
+)
+SELECT a, b, c
+FROM ranked
+WHERE rn = 1
+ON duplicate KEY UPDATE c = VALUE(c);

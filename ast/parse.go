@@ -303,7 +303,10 @@ func (p *parser) parseClause() *Clause {
 						return c
 					}
 				}
-			} else {
+			} else if kword != "WITH" {
+				// WITH introduces a comma-separated list of CTEs
+				// that should all align with WITH itself, not be
+				// indented as continuation lines.
 				c.indentNextLine = true
 			}
 			fallthrough

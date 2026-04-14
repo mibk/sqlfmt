@@ -129,7 +129,7 @@ func (p *printer) print(args ...any) {
 				if parens && !indented && isNewline(n) {
 					indented = true
 					p.indent++
-				} else if c, ok := n.(*Clause); ok && !indented {
+				} else if c, ok := n.(*Clause); ok && !indented && parens {
 					// Indent the next line when inside parens without a leading newline.
 					c.indentNextLine = true
 				}

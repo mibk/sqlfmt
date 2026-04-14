@@ -1,0 +1,22 @@
+with base as (select id from items)
+select * from base;
+
+with base as (
+select id from items
+),
+grouped as (
+select id, count(*) from base group by id
+)
+select * from grouped;
+
+insert into target (a, b, c)
+with base as (
+select a, b, c from src where flag = ?
+),
+ranked as (
+select a, b, c,
+row_number() over (partition by a order by b) as rn
+from base
+)
+select a, b, c from ranked where rn = 1
+on duplicate key update c = value(c);
