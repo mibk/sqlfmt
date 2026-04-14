@@ -286,6 +286,12 @@ func (p *parser) parseClause() *Clause {
 				case "ON":
 					next := p.peek()
 					if strings.ToUpper(next.Text) == "DUPLICATE" {
+						// DUPLICATE is not a reserved word in MariaDB,
+						// so the scanner emits it as an identifier.
+						// Together with the preceding ON it forms the
+						// ON DUPLICATE KEY UPDATE clause opener, so
+						// promote it here to get uppercase output.
+						p.peeked[len(p.peeked)-1].Type = token.Keyword
 						return c
 					}
 				case "LEFT", "RIGHT", "INNER", "CROSS":

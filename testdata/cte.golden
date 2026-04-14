@@ -23,4 +23,4 @@ ranked AS (
 SELECT a, b, c
 FROM ranked
 WHERE rn = 1
-ON duplicate KEY UPDATE c = VALUE(c);
+ON DUPLICATE KEY UPDATE c = VALUE(c);
