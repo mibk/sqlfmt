@@ -24,3 +24,12 @@ SELECT a, b, c
 FROM ranked
 WHERE rn = 1
 ON DUPLICATE KEY UPDATE c = VALUE(c);
+
+WITH base AS (
+	SELECT * FROM t
+)
+SELECT
+	# leading comment
+	a,
+	b
+FROM u;

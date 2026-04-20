@@ -257,7 +257,14 @@ func (p *parser) parseClause() *Clause {
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
 
-			p.lastIndent = backup
+			// If the subquery ended at a line whose indent is shallower
+			// than our clause's continuation level, the input actually
+			// dedented past us (e.g. the ) of a CTE sits at column 0).
+			// Trust the scanner in that case; otherwise the next clause
+			// would see a phantom deindent and break.
+			if len(p.lastIndent) >= len(backup) {
+				p.lastIndent = backup
+			}
 		case token.Keyword:
 			kword := strings.ToUpper(p.tok.Text)
 			c.Type = cmp.Or(c.Type, kword)

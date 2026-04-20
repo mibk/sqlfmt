@@ -20,3 +20,12 @@ from base
 )
 select a, b, c from ranked where rn = 1
 on duplicate key update c = value(c);
+
+with base as (
+	select * from t
+)
+select
+	# leading comment
+	a,
+	b
+from u;
