@@ -301,6 +301,14 @@ func (p *parser) parseClause() *Clause {
 						p.peeked[len(p.peeked)-1].Type = token.Keyword
 						return c
 					}
+				case "STRAIGHT_JOIN":
+					// STRAIGHT_JOIN can be either a join type
+					// (FROM t1 STRAIGHT_JOIN t2) or a SELECT modifier
+					// (SELECT STRAIGHT_JOIN ...). Only open a new
+					// clause in the former case.
+					if c.Type != "SELECT" {
+						return c
+					}
 				case "LEFT", "RIGHT", "INNER", "CROSS":
 					next := p.peek()
 					kword = next.Text

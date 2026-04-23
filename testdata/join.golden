@@ -2,3 +2,12 @@ SELECT *
 FROM book b
 JOIN author a ON b.author_id = a.id
 LEFT JOIN publisher p ON b.publisher_id = p.id
+
+SELECT a.leaf_id, a.depth, sc.sprint_id, MAX(sc.id) last_id
+FROM ancestors a
+STRAIGHT_JOIN sprint_change sc ON sc.task_id = a.task_id
+GROUP BY a.leaf_id, a.task_id, sc.sprint_id
+
+SELECT STRAIGHT_JOIN *
+FROM t1, t2
+WHERE t1.id = t2.id
