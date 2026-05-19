@@ -34,9 +34,33 @@ type parser struct {
 	lastIndent     string
 	justDeindented bool
 
-	loopCnt map[string]int
-
 	opts
+}
+
+// progress fingerprints the parser's observable state; a loop that
+// iterates twice in a row without changing it is stuck (missing
+// p.next() somewhere), so checkProgress panics. Catches the same
+// bug the old iteration-count limit caught, but independently of
+// input size.
+type progress struct {
+	pos    token.Pos
+	typ    token.Type
+	peeked int
+	set    bool
+}
+
+func (p *parser) checkProgress(prev *progress, name string) {
+	cur := progress{
+		pos:    p.tok.Pos,
+		typ:    p.tok.Type,
+		peeked: len(p.peeked),
+		set:    true,
+	}
+	if prev.set && cur == *prev {
+		panic(fmt.Sprintf("parser loop %s stuck at %v (no forward progress)",
+			name, p.tok.Pos))
+	}
+	*prev = cur
 }
 
 type opts struct {
@@ -47,8 +71,7 @@ type opts struct {
 // ParseScript parses SQL source from r and returns the AST.
 func ParseScript(r io.Reader) (*Script, error) {
 	p := &parser{
-		scan:    token.NewScanner(r),
-		loopCnt: make(map[string]int),
+		scan: token.NewScanner(r),
 	}
 	p.next() // init
 	s := p.parseScript()
@@ -113,8 +136,9 @@ func (p *parser) peek() token.Token {
 	if len(p.peeked) > 0 {
 		return p.peeked[len(p.peeked)-1]
 	}
+	var prog progress
 	for {
-		p.checkLoop("#peek")
+		p.checkProgress(&prog, "#peek")
 		tok := p.scanNext()
 		p.peeked = append(p.peeked, tok)
 		if tok.Type != token.Whitespace {
@@ -141,8 +165,9 @@ func (p *parser) errorf(format string, args ...any) {
 
 func (p *parser) parseScript() *Script {
 	s := new(Script)
+	var prog progress
 	for p.tok.Type != token.EOF {
-		p.checkLoop("#script")
+		p.checkProgress(&prog, "#script")
 		var offset bool
 		if p.tok.Type == token.Whitespace {
 			_, ws, _ := strings.Cut(p.tok.Text, "\n")
@@ -193,8 +218,9 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 	}
 	stmt := new(Stmt)
 	stmt.kind = kind
+	var prog progress
 	for {
-		p.checkLoop("#stmt")
+		p.checkProgress(&prog, "#stmt")
 		switch p.tok.Type {
 		case token.EOF:
 			if p.tok.Type != end && end != token.Semicolon {
@@ -225,8 +251,9 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 
 func (p *parser) parseClause() *Clause {
 	c := new(Clause)
+	var commentProg progress
 	for p.tok.Type == token.Comment {
-		p.checkLoop("#comment")
+		p.checkProgress(&commentProg, "#comment")
 		c.precede = append(c.precede, p.tok)
 		p.next()
 		if p.tok.Type != token.Whitespace {
@@ -244,8 +271,9 @@ func (p *parser) parseClause() *Clause {
 	p.lastIndent += "\t"
 
 	fnCallAsKword := true
+	var prog progress
 	for {
-		p.checkLoop("#clause")
+		p.checkProgress(&prog, "#clause")
 		switch p.tok.Type {
 		case token.EOF, token.Rparen, token.Semicolon:
 			return c
@@ -368,8 +396,9 @@ func (p *parser) parseClause() *Clause {
 
 func (p *parser) parseCaseOp() *CaseOp {
 	c := new(CaseOp)
+	var prog progress
 	for {
-		p.checkLoop("#case")
+		p.checkProgress(&prog, "#case")
 		switch p.tok.Type {
 		case token.EOF, token.Semicolon, token.Rparen:
 			p.errorf("unexpected %v, expected END", p.tok.Type)
@@ -396,10 +425,3 @@ func (p *parser) parseCaseOp() *CaseOp {
 	}
 }
 
-func (p *parser) checkLoop(name string) {
-	p.loopCnt[name]++
-	const limit = 5000
-	if p.loopCnt[name] > limit {
-		panic(fmt.Sprint("loop ", name, " is over ", limit, " iterations"))
-	}
-}
