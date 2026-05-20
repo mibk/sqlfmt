@@ -12,7 +12,74 @@ import (
 const (
 	magicTokenOffset = 100
 	fnCallIdent      = token.Ident + magicTokenOffset
+
+	// Disambiguated forms of +, -, * (set by the parser based on
+	// surrounding tokens, since the scanner can't tell unary from
+	// binary or wildcard from multiplication).
+	unaryAdd = token.Add + magicTokenOffset // +x
+	unarySub = token.Sub + magicTokenOffset // -x
+	wildcard = token.Mul + magicTokenOffset // SELECT *, t.*
+
+	// Tight forms of binary operators — printed without surrounding
+	// spaces when the precedence pass decides they bind tighter than
+	// the loosest operator in their expression.
+	tightAdd    = token.Add + 2*magicTokenOffset
+	tightSub    = token.Sub + 2*magicTokenOffset
+	tightMul    = token.Mul + 2*magicTokenOffset
+	tightQuo    = token.Quo + 2*magicTokenOffset
+	tightBitShl = token.BitShl + 2*magicTokenOffset
+	tightBitShr = token.BitShr + 2*magicTokenOffset
 )
+
+// noPrev is a sentinel for "start of expression"; chosen so it can't
+// collide with any token.Type value (token.Illegal happens to be 0,
+// and unquoted numeric literals are scanned as Illegal).
+const noPrev token.Type = 0xffff
+
+// isUnaryContext reports whether a + or - immediately following a
+// token of type prev should be treated as a unary prefix rather than
+// a binary operator.
+func isUnaryContext(prev token.Type) bool {
+	switch prev {
+	case noPrev,
+		token.Lparen, token.Comma,
+		token.Add, token.Sub, token.Mul, token.Quo,
+		token.BitShl, token.BitShr,
+		token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual,
+		token.Not, token.Assign,
+		token.Keyword,
+		unaryAdd, unarySub:
+		return true
+	}
+	return false
+}
+
+// isWildcardContext reports whether a * immediately following a
+// token of type prev is the SQL wildcard (SELECT *, t.*, COUNT(*))
+// rather than the multiplication operator.
+func isWildcardContext(prev token.Type) bool {
+	switch prev {
+	case noPrev, token.Period, token.Lparen, token.Comma, token.Keyword:
+		return true
+	}
+	return false
+}
+
+// classifyArithOp remaps an Add/Sub/Mul token to its unary or
+// wildcard form when the preceding context calls for it.
+func classifyArithOp(prev token.Type, tok token.Token) token.Token {
+	switch tok.Type {
+	case token.Add, token.Sub:
+		if isUnaryContext(prev) {
+			tok.Type += magicTokenOffset
+		}
+	case token.Mul:
+		if isWildcardContext(prev) {
+			tok.Type += magicTokenOffset
+		}
+	}
+	return tok
+}
 
 // SyntaxError records an error and the position it occurred on.
 type SyntaxError struct {
@@ -78,6 +145,7 @@ func ParseScript(r io.Reader) (*Script, error) {
 	if p.err != nil {
 		return nil, p.err
 	}
+	preparePrintTree(s)
 	return s, nil
 }
 
@@ -271,6 +339,7 @@ func (p *parser) parseClause() *Clause {
 	p.lastIndent += "\t"
 
 	fnCallAsKword := true
+	lastNonWS := noPrev
 	var prog progress
 	for {
 		p.checkProgress(&prog, "#clause")
@@ -284,6 +353,7 @@ func (p *parser) parseClause() *Clause {
 			p.next()
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
+			lastNonWS = token.Rparen
 
 			// If the subquery ended at a line whose indent is shallower
 			// than our clause's continuation level, the input actually
@@ -382,13 +452,16 @@ func (p *parser) parseClause() *Clause {
 				p.next()
 				spec.Spec = p.parseStmt(token.Lparen)
 				c.nodes = append(c.nodes, spec)
+				lastNonWS = token.Rparen
 				continue
 			} else if p.tok.Type == token.Ident && fnCallAsKword && p.peek().Type == token.Lparen {
 				p.tok.Type = fnCallIdent
 			} else if p.tok.Type == token.Comment && p.justDeindented {
 				return c
 			}
-			c.nodes = append(c.nodes, p.tok)
+			tok := classifyArithOp(lastNonWS, p.tok)
+			c.nodes = append(c.nodes, tok)
+			lastNonWS = tok.Type
 			p.next()
 		}
 	}
@@ -396,6 +469,7 @@ func (p *parser) parseClause() *Clause {
 
 func (p *parser) parseCaseOp() *CaseOp {
 	c := new(CaseOp)
+	lastNonWS := noPrev
 	var prog progress
 	for {
 		p.checkProgress(&prog, "#case")
@@ -407,6 +481,7 @@ func (p *parser) parseCaseOp() *CaseOp {
 			p.next()
 			sub := p.parseStmt(token.Lparen)
 			c.nodes = append(c.nodes, sub)
+			lastNonWS = token.Rparen
 		case token.Ident:
 			if strings.ToUpper(p.tok.Text) == "END" {
 				p.next()
@@ -419,7 +494,11 @@ func (p *parser) parseCaseOp() *CaseOp {
 			}
 			fallthrough
 		default:
-			c.nodes = append(c.nodes, p.tok)
+			tok := classifyArithOp(lastNonWS, p.tok)
+			c.nodes = append(c.nodes, tok)
+			if tok.Type != token.Whitespace {
+				lastNonWS = tok.Type
+			}
 			p.next()
 		}
 	}

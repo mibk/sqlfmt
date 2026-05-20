@@ -224,6 +224,15 @@ func (p *printer) print(args ...any) {
 				p.print(arg.Text)
 			case token.Eq, token.Neq, token.Lt, token.Gt, token.Leq, token.Geq, token.NullEqual:
 				p.print(space, arg.Text, space)
+			case token.Add, token.Sub, token.Mul, token.Quo, token.BitShl, token.BitShr:
+				p.print(space, arg.Text, space)
+			case tightAdd, tightSub, tightMul, tightQuo, tightBitShl, tightBitShr:
+				p.removeLast(space)
+				p.print(arg.Text, del)
+			case unaryAdd, unarySub:
+				p.print(arg.Text, del)
+			case wildcard:
+				p.print(arg.Text)
 			case token.Not:
 				p.print(arg.Text, del)
 			case token.Comma:

@@ -3,3 +3,27 @@ FROM a
 JOIN b;
 
 SELECT x <> y, !c;
+
+SELECT a + b, c - d, e*f, g/h FROM t;
+
+SELECT a*b + c*d, e*f - g/h FROM t;
+
+SELECT 1 + 2*3, (a + b)*c, (a + b)*(c + d) FROM t;
+
+SELECT -a, +b, -(c + d), x BETWEEN -10 AND 10 FROM t;
+
+SELECT a << 2, b >> 1, a*b << 2+c FROM t;
+
+SELECT a, COUNT(*) c
+FROM t
+WHERE x = -1 AND y = +2
+GROUP BY a
+HAVING SUM(x) + 1 > 0;
+
+SELECT CASE WHEN a*b + c > d/e THEN x*y ELSE 0 END val
+FROM t;
+
+SELECT total
+FROM v
+ORDER BY (COALESCE(b.overdue_total, 0) + COALESCE(b.in_due_total, 0) + COALESCE(t.tpk_uninvoiced, 0))
+	/ NULLIF(v.insurance_limit, 0) DESC;
