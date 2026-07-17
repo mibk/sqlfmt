@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"mibk.dev/sqlfmt/token"
@@ -297,7 +298,9 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 			p.next()
 			return stmt
 		case end:
-			if end != token.Rparen {
+			if end == token.Rparen {
+				stmt.removeTrailingComma()
+			} else {
 				stmt.nodes = append(stmt.nodes, p.tok)
 			}
 			p.next()
@@ -314,6 +317,37 @@ func (p *parser) parseStmt(kind token.Type) *Stmt {
 			c := p.parseClause()
 			stmt.nodes = append(stmt.nodes, c)
 		}
+	}
+}
+
+// removeTrailingComma drops a comma left dangling before the closing
+// paren of a parenthesized list (e.g. IN (1, 2, 5,)); it's a syntax
+// error that's not worth preserving in the output.
+func (s *Stmt) removeTrailingComma() {
+	for _, n := range slices.Backward(s.nodes) {
+		if tok, ok := n.(token.Token); ok && tok.Type == token.Whitespace {
+			continue
+		}
+		if c, ok := n.(*Clause); ok {
+			c.removeTrailingComma()
+		}
+		return
+	}
+}
+
+func (c *Clause) removeTrailingComma() {
+	for i, n := range slices.Backward(c.nodes) {
+		tok, ok := n.(token.Token)
+		if !ok {
+			return
+		}
+		if tok.Type == token.Whitespace {
+			continue
+		}
+		if tok.Type == token.Comma {
+			c.nodes = slices.Delete(c.nodes, i, i+1)
+		}
+		return
 	}
 }
 

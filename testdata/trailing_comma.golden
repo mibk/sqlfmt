@@ -1,0 +1,13 @@
+SELECT * FROM t WHERE id IN (1, 2, 5);
+
+INSERT INTO t (a, b) VALUES
+	(1, 2),
+	(3, 4);
+
+SELECT *
+FROM t
+WHERE id IN (
+	'Alice',
+	'Bob',
+	'Cecil'
+);
